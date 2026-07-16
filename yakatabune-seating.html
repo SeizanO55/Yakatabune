@@ -174,7 +174,7 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
 .waiting-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gold-bright); animation:pulse 1.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
 
-/* 座席ボード演出：新規参加・マイスール交代のハイライト */
+/* 座席ボード演出：新規参加・マイスター交代のハイライト */
 .lantern-pulse{ animation: lanternPulse 1.8s ease-out 2; }
 @keyframes lanternPulse{
   0%{ box-shadow:0 0 0 rgba(232,200,96,0); transform:scale(1); }
@@ -498,15 +498,15 @@ const STR = {
 
   /* 座席ボード演出 */
   spotlightJoined:{ja:"が着席！行き先は", en:"just took a seat at"},
-  spotlightMeisterChange:{ja:"マイスール交代！新マイスールは", en:"New Meister! Now it's"},
+  spotlightMeisterChange:{ja:"マイスター交代！新マイスターは", en:"New Meister! Now it's"},
   rulesLink:{ja:"ゲーム説明 →", en:"Game rules →"},
 
   /* ルール説明画面 */
   rulesEyebrow:{ja:"GAME RULES", en:"GAME RULES"},
-  rulesTitle:{ja:"DS GBD マイスール選手権", en:"DS GBD Meister Championship"},
+  rulesTitle:{ja:"DS GBD マイスター選手権", en:"DS GBD Meister Championship"},
   rulesSubtitle:{ja:"〜 誰が一番、第一三共とGBDを知り尽くしているか？ 〜", en:"Who knows Daiichi Sankyo & GBD best?"},
-  rulesBody1:{ja:"この後のクイズ大会は、個人戦ではなく卓対抗戦です。会社トリビア、部員当てクイズ、そして意見を聞く設問を通じて、各卓が力を合わせて正解を積み上げ、「一番DS・GBDを知り尽くしたマイスールテーブル」の座を競います。", en:"The quiz that follows isn't an individual contest — it's table vs. table. Through company trivia, \"guess who\" questions, and opinion polls, each table works together to rack up points and compete for the title of \"Table That Knows DS & GBD Best.\""},
-  rulesBody2:{ja:"各卓の代表として「マイスール」が回答しますが、答えるのはマイスール一人ではありません。テーブル全員で相談し、知恵を出し合い、力を合わせることが高得点への一番の近道です。", en:"A \"Meister\" answers on behalf of each table, but the answers aren't theirs alone. Talking it through together and pooling everyone's knowledge is the fastest way to a high score."},
+  rulesBody1:{ja:"この後のクイズ大会は、個人戦ではなく卓対抗戦です。会社トリビア、部員当てクイズ、そして意見を聞く設問を通じて、各卓が力を合わせて正解を積み上げ、「一番DS・GBDを知り尽くしたマイスターテーブル」の座を競います。", en:"The quiz that follows isn't an individual contest — it's table vs. table. Through company trivia, \"guess who\" questions, and opinion polls, each table works together to rack up points and compete for the title of \"Table That Knows DS & GBD Best.\""},
+  rulesBody2:{ja:"各卓の代表として「マイスター」が回答しますが、答えるのはマイスター一人ではありません。テーブル全員で相談し、知恵を出し合い、力を合わせることが高得点への一番の近道です。", en:"A \"Meister\" answers on behalf of each table, but the answers aren't theirs alone. Talking it through together and pooling everyone's knowledge is the fastest way to a high score."},
   rulesBody3:{ja:"大切なのは、コラボレーション & Trust の精神。ライバル卓との勝負を楽しみながらも、まずは自分の卓のメンバーを信じて、遠慮なく意見を出し合いましょう。上位ランクインを目指して、船の上を盛り上げていきましょう！", en:"What matters most is the spirit of Collaboration & Trust. Enjoy the friendly rivalry between tables, but start by trusting your own teammates and speaking up without hesitation. Let's aim for the top and make this a night to remember!"},
   rulesCta:{ja:"自分の卓のクイズへ", en:"Go to my table"},
   rulesBoardCta:{ja:"座席ボードへ戻る", en:"Back to seat board"},
@@ -924,7 +924,7 @@ async function renderResult(){
 
 /* =========================================================================
    画面: 座席ボード（投影用）
-   新しく着席した人・マイスール交代を、目立つ演出でお知らせします。
+   新しく着席した人・マイスター交代を、目立つ演出でお知らせします。
    ========================================================================= */
 let boardUnsub = null;
 let boardSeenIds = new Set();
