@@ -174,6 +174,48 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
 .waiting-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gold-bright); animation:pulse 1.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
 
+/* 座席ボード演出：新規参加・マイスール交代のハイライト */
+.lantern-pulse{ animation: lanternPulse 1.8s ease-out 2; }
+@keyframes lanternPulse{
+  0%{ box-shadow:0 0 0 rgba(232,200,96,0); transform:scale(1); }
+  30%{ box-shadow:0 0 40px rgba(232,200,96,.9); transform:scale(1.035); }
+  100%{ box-shadow:0 0 26px rgba(201,162,39,.08); transform:scale(1); }
+}
+.lantern-flash{ animation: lanternFlash 1.6s ease-out 2; }
+@keyframes lanternFlash{
+  0%{ border-color:var(--vermillion); box-shadow:0 0 0 rgba(193,68,46,0); }
+  30%{ border-color:var(--vermillion); box-shadow:0 0 34px rgba(193,68,46,.8); }
+  100%{ border-color:rgba(232,200,96,.35); box-shadow:0 0 26px rgba(201,162,39,.08); }
+}
+#spotlightZone{ min-height:0; margin-bottom:6px; }
+.spotlight-card{
+  background:linear-gradient(90deg, rgba(232,200,96,.18), rgba(47,111,107,.18));
+  border:1px solid var(--gold-bright);
+  border-radius:12px; padding:12px 16px; margin-bottom:8px;
+  font-size:15px; font-weight:700; color:var(--paper);
+}
+.spotlight-card.meister-change{ border-color:var(--vermillion); background:linear-gradient(90deg, rgba(193,68,46,.22), rgba(232,200,96,.12)); }
+.spotlight-anim{ animation: spotlightIn .5s ease-out; }
+@keyframes spotlightIn{ from{ opacity:0; transform:translateY(-10px);} to{ opacity:1; transform:translateY(0);} }
+
+/* 結果発表画面 */
+.rank-row{
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(232,200,96,.2);
+  border-radius:12px; padding:16px 18px; margin-bottom:12px;
+  animation: rankIn .5s ease-out backwards;
+}
+.rank-row.first{ border-color:var(--gold-bright); background:linear-gradient(90deg, rgba(232,200,96,.25), rgba(255,255,255,.03)); box-shadow:0 0 30px rgba(232,200,96,.25); }
+@keyframes rankIn{ from{ opacity:0; transform:translateX(-16px);} to{ opacity:1; transform:translateX(0);} }
+.rank-medal{ font-size:26px; width:42px; text-align:center; flex-shrink:0; }
+.rank-name{ flex:1; font-size:17px; font-weight:700; }
+.rank-score{ font-size:20px; font-weight:800; color:var(--gold-bright); }
+.hero-title{ text-align:center; padding:20px 0; }
+.hero-title .disp{ font-size:32px; margin:0; }
+.closed-box{
+  text-align:center; padding:60px 24px; border:2px dashed rgba(232,200,96,.3); border-radius:16px;
+}
+
 /* language toggle - always visible top-right */
 #langToggle{
   position:fixed; top:14px; right:14px; z-index:1000;
@@ -209,13 +251,13 @@ import {
    Realtime Database（Firestoreではない）を有効化しておくこと。
    ========================================================================= */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBw3kE-0jzcJHrYtEBrGSGWs5l7HfHEIm8",
+  authDomain: "gbd-ahm.firebaseapp.com",
+  databaseURL: "https://gbd-ahm-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "gbd-ahm",
+  storageBucket: "gbd-ahm.firebasestorage.app",
+  messagingSenderId: "990848433537",
+  appId: "1:990848433537:web:bf7d04c71508cc4aadfc80"
 };
 
 /* =========================================================================
@@ -410,7 +452,40 @@ const STR = {
   rankHeaderTable:{ja:"卓", en:"Table"},
   rankHeaderScore:{ja:"スコア", en:"Score"},
   updatedQuiz:{ja:"クイズ内容を更新しました", en:"Quiz content updated"},
+  revealTitle:{ja:"④ 結果発表を公開する", en:"④ Reveal results"},
+  revealDesc:{ja:"「公開する」を押すまで、参加者側の結果発表画面（#/ranking）は非表示のままです。乾杯後やイベント翌日など、好きなタイミングで公開できます。公開すると、みんなのスマホ・iPadでも同時に見られるようになります。", en:"The participant-facing results screen (#/ranking) stays hidden until you press \"Reveal.\" Open it whenever you like — right after the toast, or even the next day. Once opened, everyone can view it at the same time on their own phones or iPads."},
+  revealStatusLabel:{ja:"現在の状態：", en:"Current status: "},
+  revealStatusOpen:{ja:"公開中", en:"Open"},
+  revealStatusClosed:{ja:"非公開", en:"Closed"},
+  revealOpenBtn:{ja:"結果を公開する", en:"Reveal results"},
+  revealCloseBtn:{ja:"非公開に戻す", en:"Hide results"},
+  revealProjectorLink:{ja:"投影用画面を開く", en:"Open projector view"},
+  revealOpened:{ja:"結果を公開しました", en:"Results revealed"},
+  revealClosed:{ja:"結果を非公開に戻しました", en:"Results hidden again"},
   peopleCount:{ja:"名", en:" people"},
+
+  /* 座席ボード演出 */
+  spotlightJoined:{ja:"が着席！行き先は", en:"just took a seat at"},
+  spotlightMeisterChange:{ja:"マイスール交代！新マイスールは", en:"New Meister! Now it's"},
+  rulesLink:{ja:"ゲーム説明 →", en:"Game rules →"},
+
+  /* ルール説明画面 */
+  rulesEyebrow:{ja:"GAME RULES", en:"GAME RULES"},
+  rulesTitle:{ja:"DS GBD マイスール選手権", en:"DS GBD Meister Championship"},
+  rulesSubtitle:{ja:"〜 誰が一番、第一三共とGBDを知り尽くしているか？ 〜", en:"Who knows Daiichi Sankyo & GBD best?"},
+  rulesBody1:{ja:"この後のクイズ大会は、個人戦ではなく卓対抗戦です。会社トリビア、部員当てクイズ、そして意見を聞く設問を通じて、各卓が力を合わせて正解を積み上げ、「一番DS・GBDを知り尽くしたマイスールテーブル」の座を競います。", en:"The quiz that follows isn't an individual contest — it's table vs. table. Through company trivia, \"guess who\" questions, and opinion polls, each table works together to rack up points and compete for the title of \"Table That Knows DS & GBD Best.\""},
+  rulesBody2:{ja:"各卓の代表として「マイスール」が回答しますが、答えるのはマイスール一人ではありません。テーブル全員で相談し、知恵を出し合い、力を合わせることが高得点への一番の近道です。", en:"A \"Meister\" answers on behalf of each table, but the answers aren't theirs alone. Talking it through together and pooling everyone's knowledge is the fastest way to a high score."},
+  rulesBody3:{ja:"大切なのは、コラボレーション & Trust の精神。ライバル卓との勝負を楽しみながらも、まずは自分の卓のメンバーを信じて、遠慮なく意見を出し合いましょう。上位ランクインを目指して、船の上を盛り上げていきましょう！", en:"What matters most is the spirit of Collaboration & Trust. Enjoy the friendly rivalry between tables, but start by trusting your own teammates and speaking up without hesitation. Let's aim for the top and make this a night to remember!"},
+  rulesCta:{ja:"自分の卓のクイズへ", en:"Go to my table"},
+  rulesBoardCta:{ja:"座席ボードへ戻る", en:"Back to seat board"},
+
+  /* 結果発表画面 */
+  rankingEyebrow:{ja:"FINAL RESULTS", en:"FINAL RESULTS"},
+  rankingTitle:{ja:"クイズ大会 結果発表", en:"Quiz Championship Results"},
+  rankingClosedTitle:{ja:"結果はまだ発表されていません", en:"Results haven't been revealed yet"},
+  rankingClosedDesc:{ja:"運営が結果を公開すると、この画面に自動的に表示されます。今しばらくお待ちください。", en:"This screen will update automatically once the organizer reveals the results. Please stand by."},
+  rankingWinnerLabel:{ja:"優勝は…", en:"And the winner is…"},
+  rankingCongrats:{ja:"🏆 おめでとうございます！ 🏆", en:"🏆 Congratulations! 🏆"},
 };
 function T(key){ const e = STR[key]; if(!e) return ""; return e[LANG] ?? e.ja; }
 function L(ja, en){ if(LANG==="en") return (en && en.trim()) ? en : ja; return ja; }
@@ -523,6 +598,10 @@ async function ensureConfig(){
   if(!tablesExisting){
     await reinitTablesNode(themes);
   }
+  const resultsOpenExisting = await DB.get("event/resultsOpen");
+  if(resultsOpenExisting===null){
+    await DB.set("event/resultsOpen", false);
+  }
 }
 async function reinitTablesNode(themes){
   const init = {};
@@ -582,6 +661,8 @@ function route(){
   else if(page==="result") renderResult();
   else if(page==="board") renderBoard();
   else if(page==="table") renderTable();
+  else if(page==="rules") renderRules();
+  else if(page==="ranking") renderRanking();
   else if(page==="admin") renderAdmin();
   else renderJoin();
 }
@@ -598,7 +679,10 @@ async function renderJoin(){
   app.innerHTML = `
     <div class="header-top">
       <div class="eyebrow">${T('eyebrowJoin')}</div>
-      <a class="small-link" href="#/board">${T('boardLink')}</a>
+      <div style="display:flex; gap:14px;">
+        <a class="small-link" href="#/rules">${T('rulesLink')}</a>
+        <a class="small-link" href="#/board">${T('boardLink')}</a>
+      </div>
     </div>
     <h1 class="disp" style="font-size:30px; margin:6px 0 4px;">${T('title')}</h1>
     <p class="muted">${T('joinIntro')}</p>
@@ -759,15 +843,26 @@ async function renderResult(){
 
 /* =========================================================================
    画面: 座席ボード（投影用）
+   新しく着席した人・マイスール交代を、目立つ演出でお知らせします。
    ========================================================================= */
 let boardUnsub = null;
+let boardSeenIds = new Set();
+let boardPrevMeister = {};
+let boardPrimed = false;
 async function renderBoard(){
+  boardSeenIds = new Set();
+  boardPrevMeister = {};
+  boardPrimed = false;
   app.innerHTML = `
     <div class="header-top">
       <div class="eyebrow">${T('boardEyebrow')}</div>
-      <a class="small-link" href="#/join">${T('joinLink')}</a>
+      <div style="display:flex; gap:14px;">
+        <a class="small-link" href="#/rules">${T('rulesLink')}</a>
+        <a class="small-link" href="#/join">${T('joinLink')}</a>
+      </div>
     </div>
-    <h1 class="disp" style="font-size:28px; margin:6px 0 18px;">${T('boardTitle')}</h1>
+    <h1 class="disp" style="font-size:28px; margin:6px 0 10px;">${T('boardTitle')}</h1>
+    <div id="spotlightZone"></div>
     <div id="boardGrid" class="board-grid"></div>
   `;
   if(boardUnsub) boardUnsub();
@@ -778,11 +873,28 @@ async function renderBoard(){
     const themes = getActiveThemes(cfg);
     const grid = document.getElementById("boardGrid");
     if(!grid) return;
+
+    const entries = Object.entries(participants);
+    const newlyJoined = boardPrimed ? entries.filter(([id])=>!boardSeenIds.has(id)) : [];
+    newlyJoined.sort((a,b)=>a[1].ts-b[1].ts);
+    entries.forEach(([id])=> boardSeenIds.add(id));
+
+    const changedMeisterTables = [];
+    themes.forEach((t,i)=>{
+      const mId = tables[i] && tables[i].meisterId;
+      if(boardPrimed && mId && boardPrevMeister[i] && boardPrevMeister[i]!==mId){
+        changedMeisterTables.push({ i, meisterId: mId });
+      }
+      if(mId) boardPrevMeister[i] = mId;
+    });
+
     grid.innerHTML = themes.map((t,i)=>{
-      const members = Object.entries(participants).filter(([id,p])=>p.tableIndex===i);
+      const members = entries.filter(([id,p])=>p.tableIndex===i);
       const meisterId = tables[i] && tables[i].meisterId;
+      const justJoined = newlyJoined.some(([id,p])=>p.tableIndex===i);
+      const justChanged = changedMeisterTables.some(c=>c.i===i);
       return `
-        <div class="lantern">
+        <div class="lantern ${justJoined?'lantern-pulse':''} ${justChanged?'lantern-flash':''}">
           <div class="count">${members.length}${T('peopleCount')}</div>
           <h3>${esc(L(t.name,t.nameEn))}</h3>
           <div class="concept-en">${esc(LANG==='en' ? t.kana : t.nameEn)}</div>
@@ -794,6 +906,32 @@ async function renderBoard(){
         </div>
       `;
     }).join("");
+
+    const spotlightZone = document.getElementById("spotlightZone");
+    if(spotlightZone){
+      const cards = [];
+      newlyJoined.forEach(([id,p])=>{
+        const t = themes[p.tableIndex];
+        if(!t) return;
+        cards.push(`<div class="spotlight-card">🎉 <strong>${esc(p.name)}</strong> ${T('spotlightJoined')} <span class="pill">${esc(L(t.name,t.nameEn))}</span></div>`);
+      });
+      changedMeisterTables.forEach(c=>{
+        const t = themes[c.i];
+        const name = participants[c.meisterId] && participants[c.meisterId].name;
+        if(!t || !name) return;
+        cards.push(`<div class="spotlight-card meister-change">⛵ <span class="pill">${esc(L(t.name,t.nameEn))}</span> ${T('spotlightMeisterChange')} <strong>${esc(name)}</strong> ⛵</div>`);
+      });
+      if(cards.length){
+        spotlightZone.innerHTML = cards.join("");
+        void spotlightZone.offsetWidth; // restart CSS animation
+        spotlightZone.classList.remove("spotlight-anim");
+        void spotlightZone.offsetWidth;
+        spotlightZone.classList.add("spotlight-anim");
+        clearTimeout(spotlightZone._clearTimer);
+        spotlightZone._clearTimer = setTimeout(()=>{ if(spotlightZone) spotlightZone.innerHTML = ""; }, 5000);
+      }
+    }
+    boardPrimed = true;
   });
 }
 
@@ -832,6 +970,7 @@ async function renderTable(){
           <p class="waiting-dot"></p>
           <p class="muted" style="margin-top:10px;">${T('waitAdmin')}</p>
           ${isMeister ? `<div class="badge-meister" style="margin-top:14px;">${T('meisterOfTable')}</div>` : ``}
+          <a href="#/rules" class="btn secondary" style="margin-top:16px;">${T('rulesLink')}</a>
         </div>
       `;
       return;
@@ -893,6 +1032,94 @@ async function renderTable(){
     });
   });
   tableUnsub.push(unsub);
+}
+
+/* =========================================================================
+   画面: ルール説明（クイズ大会の趣旨・コラボレーション&Trustの精神）
+   ========================================================================= */
+async function renderRules(){
+  app.innerHTML = `
+    <div class="header-top">
+      <div class="eyebrow">${T('rulesEyebrow')}</div>
+      <a class="small-link" href="#/board">${T('boardLink')}</a>
+    </div>
+    <div class="hero-title">
+      <h1 class="disp">${T('rulesTitle')}</h1>
+      <p class="muted" style="margin-top:8px; font-size:15px;">${T('rulesSubtitle')}</p>
+    </div>
+    <div class="card">
+      <p class="muted" style="font-size:15px; line-height:1.9; color:var(--paper);">${T('rulesBody1')}</p>
+    </div>
+    <div class="card">
+      <p class="muted" style="font-size:15px; line-height:1.9; color:var(--paper);">${T('rulesBody2')}</p>
+    </div>
+    <div class="card" style="border-color:var(--gold-bright);">
+      <p class="muted" style="font-size:15px; line-height:1.9; color:var(--paper);">🤝 ${T('rulesBody3')}</p>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+      <a href="#/board" class="btn secondary">${T('rulesBoardCta')}</a>
+      <a href="#/table" class="btn">${T('rulesCta')}</a>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   画面: 結果発表（管理者が公開するまで隠しておける、投影・全員閲覧用）
+   ========================================================================= */
+let rankingUnsub = null;
+async function renderRanking(){
+  app.innerHTML = `<div class="center" style="padding:60px 0;"><span class="spinner"></span></div>`;
+  if(rankingUnsub) rankingUnsub();
+  rankingUnsub = DB.onValue("event/resultsOpen", async (isOpen)=>{
+    const cfg = await DB.get("event/config");
+    const themes = getActiveThemes(cfg);
+    const tables = (await DB.get("tables")) || {};
+
+    if(!isOpen){
+      app.innerHTML = `
+        <div class="header-top">
+          <div class="eyebrow">${T('rankingEyebrow')}</div>
+          <a class="small-link" href="#/board">${T('boardLink')}</a>
+        </div>
+        <div class="closed-box">
+          <div style="font-size:40px; margin-bottom:14px;">🔒</div>
+          <h2 class="disp" style="font-size:22px;">${T('rankingClosedTitle')}</h2>
+          <p class="muted" style="margin-top:10px;">${T('rankingClosedDesc')}</p>
+        </div>
+      `;
+      return;
+    }
+
+    const rows = themes.map((t,i)=>({ t, score:(tables[i]&&tables[i].score)||0 }))
+      .sort((a,b)=> b.score - a.score);
+    const medals = ["🥇","🥈","🥉"];
+
+    app.innerHTML = `
+      <div class="header-top">
+        <div class="eyebrow">${T('rankingEyebrow')}</div>
+        <a class="small-link" href="#/board">${T('boardLink')}</a>
+      </div>
+      <div class="hero-title">
+        <h1 class="disp">${T('rankingTitle')}</h1>
+      </div>
+      ${rows.length ? `
+        <div class="card" style="text-align:center; border-color:var(--gold-bright);">
+          <p class="muted" style="font-size:13px;">${T('rankingWinnerLabel')}</p>
+          <h2 class="disp" style="font-size:30px; color:var(--gold-bright); margin:6px 0;">${esc(L(rows[0].t.name, rows[0].t.nameEn))}</h2>
+          <p style="font-weight:800; font-size:20px;">${T('rankingCongrats')}</p>
+        </div>
+      ` : ``}
+      <div style="margin-top:18px;">
+        ${rows.map((r,idx)=>`
+          <div class="rank-row ${idx===0?'first':''}" style="animation-delay:${idx*0.12}s;">
+            <div class="rank-medal">${medals[idx] || (idx+1)}</div>
+            <div class="rank-name">${esc(L(r.t.name,r.t.nameEn))}</div>
+            <div class="rank-score">${r.score}${T('ptsLabel')}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  });
 }
 
 /* =========================================================================
@@ -973,11 +1200,36 @@ async function renderAdmin(){
     </div>
 
     <div class="card">
+      <h3 style="margin-top:0;">${T('revealTitle')}</h3>
+      <p class="muted">${T('revealDesc')}</p>
+      <p class="muted" style="margin:10px 0;">${T('revealStatusLabel')}<strong id="revealStatusText" style="color:var(--paper);">…</strong></p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="revealOpenBtn">${T('revealOpenBtn')}</button>
+        <button class="btn secondary" id="revealCloseBtn">${T('revealCloseBtn')}</button>
+        <a class="btn secondary" href="#/ranking" target="_blank" rel="noopener">${T('revealProjectorLink')}</a>
+      </div>
+    </div>
+
+    <div class="card">
       <h3 style="margin-top:0; color:var(--vermillion);">${T('resetTitle')}</h3>
       <p class="muted">${T('resetDesc')}</p>
       <button class="btn danger" id="resetBtn">${T('resetBtn')}</button>
     </div>
   `;
+
+  const revealUnsub = DB.onValue("event/resultsOpen", (isOpen)=>{
+    const el = document.getElementById("revealStatusText");
+    if(el) el.textContent = isOpen ? T('revealStatusOpen') : T('revealStatusClosed');
+  });
+  adminUnsub.push(revealUnsub);
+  document.getElementById("revealOpenBtn").addEventListener("click", async ()=>{
+    await DB.set("event/resultsOpen", true);
+    toast(T('revealOpened'));
+  });
+  document.getElementById("revealCloseBtn").addEventListener("click", async ()=>{
+    await DB.set("event/resultsOpen", false);
+    toast(T('revealClosed'));
+  });
 
   document.getElementById("saveSettingsBtn").addEventListener("click", async ()=>{
     const newCount = clampTableCount(parseInt(document.getElementById("tableCountInput").value,10));
