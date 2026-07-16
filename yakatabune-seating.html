@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>屋形船 席決め航海図 / Seat Voyage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-deep:#0d2436;
+  --navy:#15334a;
+  --navy-light:#1f4a63;
+  --gold:#c9a227;
+  --gold-bright:#e8c860;
+  --vermillion:#c1442e;
+  --paper:#f3ecdb;
+  --paper-dim:#d9cfae;
+  --teal:#2f6f6b;
+  --ink:#1a1a1a;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(232,200,96,.08), transparent 45%),
+    radial-gradient(ellipse at 90% 110%, rgba(47,111,107,.15), transparent 50%),
+    var(--navy-deep);
+  color:var(--paper);
+  font-family:"Zen Kaku Gothic New", sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.seigaiha{
+  height:14px;
+  width:100%;
+  background-image: radial-gradient(circle at 50% -50%, transparent 60%, var(--gold) 61%, var(--gold) 63%, transparent 64%);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 0;
+  opacity:.35;
+}
+h1,h2,h3,.disp{font-family:"Shippori Mincho", serif; letter-spacing:.02em;}
+.eyebrow{
+  font-size:12px; letter-spacing:.2em; color:var(--gold-bright); text-transform:uppercase;
+  font-family:"Zen Kaku Gothic New",sans-serif; font-weight:700;
+}
+.wrap{max-width:760px; margin:0 auto; padding:56px 18px 80px;}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+  border:1px solid rgba(232,200,96,.18);
+  border-radius:14px;
+  padding:22px;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--gold);
+  color:var(--navy-deep);
+  border:none;
+  padding:14px 22px;
+  font-size:16px;
+  font-weight:700;
+  border-radius:10px;
+  cursor:pointer;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  box-shadow:0 4px 0 #8a7113;
+  text-decoration:none;
+}
+.btn:hover{background:var(--gold-bright);}
+.btn:active{transform:translateY(3px); box-shadow:0 1px 0 #8a7113;}
+.btn.secondary{
+  background:transparent; color:var(--paper); border:1px solid rgba(243,236,219,.35);
+  box-shadow:none;
+}
+.btn.secondary:active{transform:translateY(1px);}
+.btn.danger{background:var(--vermillion); color:var(--paper); box-shadow:0 4px 0 #7c2a1c;}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+input[type=text], input[type=password], select{
+  width:100%;
+  padding:13px 14px;
+  border-radius:10px;
+  border:1px solid rgba(243,236,219,.3);
+  background:rgba(255,255,255,.06);
+  color:var(--paper);
+  font-size:16px;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+}
+input::placeholder{color:rgba(243,236,219,.4);}
+.option-btn{
+  display:block; width:100%; text-align:left;
+  padding:16px 16px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid rgba(243,236,219,.2);
+  background:rgba(255,255,255,.03);
+  color:var(--paper);
+  font-size:15.5px;
+  cursor:pointer;
+  transition:all .15s ease;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+}
+.option-btn:hover{border-color:var(--gold); background:rgba(201,162,39,.1);}
+.option-btn.selected{border-color:var(--gold-bright); background:rgba(201,162,39,.22); box-shadow:0 0 0 1px var(--gold-bright) inset;}
+.progress-track{height:6px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden; margin-bottom:20px;}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--teal),var(--gold)); transition:width .3s ease;}
+.qnum{color:var(--gold-bright); font-weight:700; font-size:13px; letter-spacing:.1em;}
+.pill{
+  display:inline-block; padding:4px 12px; border-radius:99px; font-size:12.5px; font-weight:700;
+  background:rgba(201,162,39,.18); color:var(--gold-bright); border:1px solid rgba(201,162,39,.4);
+}
+a{color:var(--gold-bright);}
+.center{text-align:center;}
+.muted{color:rgba(243,236,219,.6); font-size:14px; line-height:1.7;}
+
+.board-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;
+}
+.lantern{
+  position:relative;
+  background:radial-gradient(circle at 50% 20%, rgba(232,200,96,.15), rgba(21,51,74,.9) 70%);
+  border:1px solid rgba(232,200,96,.35);
+  border-radius:16px;
+  padding:18px 16px 16px;
+  min-height:150px;
+  box-shadow:0 0 26px rgba(201,162,39,.08), var(--shadow);
+}
+.lantern::before{
+  content:""; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  width:26px; height:8px; background:var(--gold); border-radius:4px 4px 0 0;
+}
+.lantern h3{margin:0 0 1px; font-size:19px; color:var(--gold-bright);}
+.lantern .concept-en{font-size:12.5px; color:rgba(232,200,96,.75); font-weight:700; margin-bottom:2px;}
+.lantern .concept{font-size:12px; color:rgba(243,236,219,.5); margin-bottom:10px;}
+.lantern .members{font-size:14px; line-height:1.9;}
+.lantern .members .m{display:inline-block; margin:2px 6px 2px 0; padding:3px 9px; background:rgba(255,255,255,.06); border-radius:99px;}
+.lantern .members .m.meister{background:var(--vermillion); color:#fff; font-weight:700;}
+.lantern .count{position:absolute; top:12px; right:14px; font-size:12px; color:rgba(243,236,219,.5);}
+
+.axis-row{margin-bottom:16px;}
+.axis-label{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:rgba(243,236,219,.75);}
+.axis-bar{height:10px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; position:relative;}
+.axis-fill{height:100%; background:linear-gradient(90deg,var(--teal),var(--gold-bright)); border-radius:99px;}
+
+.badge-meister{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--vermillion); color:#fff; padding:10px 16px; border-radius:10px; font-weight:700;
+  margin-top:8px;
+}
+.note-box{
+  background:rgba(47,111,107,.18); border:1px solid rgba(47,111,107,.5); border-radius:10px;
+  padding:12px 14px; font-size:13.5px; color:var(--paper); margin-top:10px; line-height:1.7;
+}
+
+table.score-table{width:100%; border-collapse:collapse; font-size:14px;}
+table.score-table th, table.score-table td{padding:9px 8px; text-align:left; border-bottom:1px solid rgba(243,236,219,.12);}
+table.score-table th{color:var(--gold-bright); font-weight:700; font-size:12px; letter-spacing:.05em;}
+
+.toast{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  background:var(--navy-light); border:1px solid var(--gold); color:var(--paper);
+  padding:12px 20px; border-radius:10px; box-shadow:var(--shadow); z-index:999; font-size:14px;
+}
+.header-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+.small-link{font-size:12px; color:rgba(243,236,219,.45); text-decoration:none;}
+.opinion-scale{display:flex; gap:8px;}
+.opinion-scale button{flex:1; padding:12px 4px; border-radius:8px; border:1px solid rgba(243,236,219,.25); background:rgba(255,255,255,.03); color:var(--paper); cursor:pointer; font-size:12.5px;}
+.opinion-scale button.selected{background:var(--gold); color:var(--navy-deep); font-weight:700; border-color:var(--gold);}
+hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 0;}
+.spinner{width:22px;height:22px;border:3px solid rgba(255,255,255,.2); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.waiting-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--gold-bright); animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+
+/* language toggle - always visible top-right */
+#langToggle{
+  position:fixed; top:14px; right:14px; z-index:1000;
+  display:flex; background:rgba(13,36,54,.85); border:1px solid rgba(232,200,96,.4);
+  border-radius:99px; padding:3px; backdrop-filter:blur(4px);
+}
+#langToggle button{
+  border:none; background:transparent; color:rgba(243,236,219,.6); font-size:12px; font-weight:700;
+  padding:6px 12px; border-radius:99px; cursor:pointer; font-family:"Zen Kaku Gothic New",sans-serif;
+}
+#langToggle button.active{background:var(--gold); color:var(--navy-deep);}
+.bi-en{color:rgba(243,236,219,.55); font-size:.82em; display:block; margin-top:2px; font-weight:400;}
+</style>
+</head>
+<body>
+
+<div id="langToggle">
+  <button id="langJa" class="active">日本語</button>
+  <button id="langEn">English</button>
+</div>
+<div class="seigaiha"></div>
+<div id="app" class="wrap"><div class="center" style="padding:80px 0;"><span class="spinner"></span></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getDatabase, ref, set, update, push, onValue, get, remove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* =========================================================================
+   1) FIREBASE 設定 / Firebase config
+   Firebase Console > プロジェクトの設定 > 全般 > マイアプリ (Web) で取得。
+   Realtime Database（Firestoreではない）を有効化しておくこと。
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+/* =========================================================================
+   2) 管理者パスワード / Admin passwords（複数名で共有可）
+   ========================================================================= */
+const ADMIN_PASSWORDS = ["funayakata2026", "kanjiA", "kanjiB"];
+
+/* =========================================================================
+   3) 卓数・定員のデフォルト値
+   実際の卓数・1卓あたりの定員は、管理画面（#/admin）からいつでも変更できます
+   （ここはあくまで初期値）。
+   ========================================================================= */
+const DEFAULT_TABLE_COUNT = 12;
+const DEFAULT_CAPACITY = 5;
+const MIN_TABLE_COUNT = 4;
+const MAX_TABLE_COUNT = 17; // 用意しているゲームテーマの数が上限
+
+/* =========================================================================
+   4) 卓のコンセプト：レトロゲーム・キャラクター診断
+   40〜50代の海外メンバーにも馴染み深い、世界的に有名なレトロゲーム／
+   キャラクターをモチーフにしています。日本らしさも出しつつ、
+   海外の同僚もひと目でわかるチョイスにしています。
+
+   vec: 性格診断3軸（A=攻め/守り, B=論理/感覚, C=リーダー/ムード）における
+   このゲームの「性格ベクトル」（-1〜+1）。診断結果に一番近いテーマに
+   自動で振り分けられます（卓数を絞ると、上から順にその数だけ使われます）。
+   ========================================================================= */
+const GAME_THEMES = [
+  { name:"スーパーマリオ", nameEn:"Super Mario", kana:"スーパーマリオ組",
+    descJa:"前向きで頼れる、みんなを引っ張る冒険家タイプ。", descEn:"Bold, upbeat, and always ready to lead the adventure.",
+    vec:{A:0.6,B:-0.2,C:0.7} },
+  { name:"テトリス", nameEn:"Tetris", kana:"テトリス組",
+    descJa:"冷静沈着、パズルを組み立てるように物事を考える知将タイプ。", descEn:"Calm and methodical — the strategist who plans every move.",
+    vec:{A:-0.4,B:0.9,C:-0.2} },
+  { name:"ストリートファイター", nameEn:"Street Fighter", kana:"ストリートファイター組",
+    descJa:"直感と勢いで押し切る、闘志あふれる武闘派タイプ。", descEn:"Bold instincts and fighting spirit — leads with momentum.",
+    vec:{A:0.9,B:-0.4,C:0.6} },
+  { name:"ソニック・ザ・ヘッジホッグ", nameEn:"Sonic the Hedgehog", kana:"ソニック組",
+    descJa:"スピード重視、勢いのまま楽しく突き進むタイプ。", descEn:"Fast, fun, and instinctive — full speed ahead.",
+    vec:{A:0.8,B:-0.3,C:-0.5} },
+  { name:"マインクラフト", nameEn:"Minecraft", kana:"マインクラフト組",
+    descJa:"コツコツ積み上げる、創造力豊かな建築家タイプ。", descEn:"Patient and creative — builds something great, one block at a time.",
+    vec:{A:-0.2,B:0.5,C:0.4} },
+  { name:"パックマン", nameEn:"Pac-Man", kana:"パックマン組",
+    descJa:"コツコツ堅実、周りと歩調を合わせるタイプ。", descEn:"Steady and careful, gathering points one at a time.",
+    vec:{A:-0.5,B:0.4,C:-0.3} },
+  { name:"ドンキーコング", nameEn:"Donkey Kong", kana:"ドンキーコング組",
+    descJa:"パワフルで頼りがいのある、力強いタイプ。", descEn:"Powerful and instinctive, with natural leadership muscle.",
+    vec:{A:0.6,B:-0.6,C:0.3} },
+  { name:"スペースインベーダー", nameEn:"Space Invaders", kana:"スペースインベーダー組",
+    descJa:"守りを固め、冷静に状況を見極める司令官タイプ。", descEn:"Careful and logical — commands the defense with a cool head.",
+    vec:{A:-0.6,B:0.6,C:0.3} },
+  { name:"鉄拳", nameEn:"Tekken", kana:"鉄拳組",
+    descJa:"一撃必殺、直感を信じて突き進むタイプ。", descEn:"Bold and instinctive, trusting the gut over the plan.",
+    vec:{A:0.7,B:-0.5,C:-0.1} },
+  { name:"モータルコンバット", nameEn:"Mortal Kombat", kana:"モータルコンバット組",
+    descJa:"技を読み、確実に決めにいく戦略派タイプ。", descEn:"Bold but calculated — studies the moves before finishing strong.",
+    vec:{A:0.8,B:0.3,C:0.5} },
+  { name:"フロッガー", nameEn:"Frogger", kana:"フロッガー組",
+    descJa:"タイミングを見極める、慎重派のマイペースタイプ。", descEn:"Careful and instinctive, timing every move just right.",
+    vec:{A:-0.5,B:-0.3,C:-0.4} },
+  { name:"ギャラガ", nameEn:"Galaga", kana:"ギャラガ組",
+    descJa:"集中力抜群、精密に狙いを定めるタイプ。", descEn:"Focused and precise, quietly locking onto the target.",
+    vec:{A:-0.2,B:0.7,C:-0.2} },
+  { name:"ゼルダの伝説", nameEn:"The Legend of Zelda", kana:"ゼルダ組",
+    descJa:"知恵と勇気を併せ持つ、頼れる冒険リーダー。", descEn:"Wise and courageous — a thoughtful leader on every quest.",
+    vec:{A:0.3,B:0.5,C:0.6} },
+  { name:"ボンバーマン", nameEn:"Bomberman", kana:"ボンバーマン組",
+    descJa:"仕掛け上手、場を盛り上げる戦略リーダー。", descEn:"A playful strategist who loves stirring things up — in a good way.",
+    vec:{A:0.4,B:0.4,C:0.5} },
+  { name:"パズルボブル", nameEn:"Puzzle Bobble", kana:"パズルボブル組",
+    descJa:"周りとの連携を大事にする、和やかな協調タイプ。", descEn:"Careful and easygoing — always thinking of the team's rhythm.",
+    vec:{A:-0.4,B:0.2,C:-0.6} },
+  { name:"アウトラン", nameEn:"OutRun", kana:"アウトラン組",
+    descJa:"自由奔放、気の向くままに楽しむタイプ。", descEn:"Free-spirited and instinctive — enjoys the ride, wherever it goes.",
+    vec:{A:0.7,B:-0.7,C:-0.3} },
+  { name:"パックマン２世", nameEn:"Q*bert", kana:"キュバート組",
+    descJa:"独自の視点でコツコツ進む、ユニークな職人タイプ。", descEn:"Quietly methodical, hopping to the beat of its own drum.",
+    vec:{A:-0.3,B:0.6,C:0.1} },
+];
+
+const AXES = [
+  { id:"A", pos:"攻め", neg:"守り", posEn:"Bold", negEn:"Careful" },
+  { id:"B", pos:"論理", neg:"感覚", posEn:"Logic", negEn:"Instinct" },
+  { id:"C", pos:"リーダー", neg:"ムード", posEn:"Leader", negEn:"Mood-maker" },
+];
+
+/* =========================================================================
+   5) デフォルトの性格診断・卓クイズ（日英バイリンガル）
+   管理画面からExcel(.xlsx)をアップロードすると内容を丸ごと差し替えられます。
+   ========================================================================= */
+const DEFAULT_PERSONALITY = [
+  {axis:"A", q:"会議で新しい提案が出た。あなたは？", qEn:"A new idea comes up in a meeting. You…", pos:"面白そう、まず試してみたい", posEn:"Sounds fun — let's just try it", neg:"リスクを洗い出してから判断したい", negEn:"Want to weigh the risks first"},
+  {axis:"A", q:"予定外の誘いが来た。あなたは？", qEn:"You get a last-minute invitation. You…", pos:"とりあえず乗ってみる", posEn:"Say yes and figure it out later", neg:"予定と相談してから決める", negEn:"Check your schedule before deciding"},
+  {axis:"A", q:"知らない土地に着いた。あなたは？", qEn:"You arrive somewhere new. You…", pos:"当てもなく歩き回りたい", posEn:"Wander around and see what happens", neg:"地図やレビューを先に見たい", negEn:"Look up a map and reviews first"},
+  {axis:"B", q:"物事を判断するとき重視するのは？", qEn:"When making a decision, you rely more on…", pos:"データや根拠", posEn:"Data and evidence", neg:"雰囲気や直感", negEn:"Gut feeling and mood"},
+  {axis:"B", q:"買い物で悩んだら？", qEn:"Torn between two products? You…", pos:"スペックを比較表にする", posEn:"Make a comparison chart", neg:"見た瞬間の印象で決める", negEn:"Go with your first impression"},
+  {axis:"B", q:"議論が白熱してきた。あなたは？", qEn:"A discussion gets heated. You want to…", pos:"数字や事実で整理したくなる", posEn:"Bring it back to facts and numbers", neg:"場の空気を読んで着地させたくなる", negEn:"Read the room and smooth things over"},
+  {axis:"C", q:"チームで作業するとき、自然と…", qEn:"In group work, you naturally end up…", pos:"進行役になっていることが多い", posEn:"Leading and setting the direction", neg:"ムードメーカーになっていることが多い", negEn:"Keeping the mood light and fun"},
+  {axis:"C", q:"意見が対立したら？", qEn:"When opinions clash, you…", pos:"率先して方向性を示したい", posEn:"Step up and set a direction", neg:"みんなの意見をまあまあで丸めたい", negEn:"Try to find a friendly middle ground"},
+  {axis:"C", q:"飲み会の幹事を任されたら？", qEn:"You're asked to plan the team party. You…", pos:"きっちり仕切って進めたい", posEn:"Take charge and organize everything", neg:"楽しい雰囲気づくりに徹したい", negEn:"Focus on making it fun for everyone"},
+];
+
+const DEFAULT_TABLE_QUIZ = [
+  {type:"opinion", q:"事業開発（BD）は、社内資産の育成よりも、積極的に外部M&Aを行うべきだ。", qEn:"Business Development should prioritize active M&A over growing internal assets.", options:["強くそう思う","ややそう思う","ややそう思わない","そう思わない"], optionsEn:["Strongly agree","Somewhat agree","Somewhat disagree","Disagree"]},
+  {type:"trivia",  q:"［サンプル問題／Excelで編集してください］当部門が今期最も注力しているテーマは？", qEn:"[Sample question — edit via Excel] What is our team's top priority this term?", options:["新規モダリティ導入","既存パイプライン強化","海外提携拡大","組織体制の見直し"], optionsEn:["New modality entry","Strengthening the pipeline","Expanding global partnerships","Restructuring the team"], correct:0},
+  {type:"member",  q:"［サンプル問題／Excelで編集してください］学生時代、体育会に所属していたのは誰？", qEn:"[Sample — edit via Excel] Who played competitive sports in school?", options:["Aさん","Bさん","Cさん","Dさん"], optionsEn:["Person A","Person B","Person C","Person D"], correct:0},
+  {type:"trivia",  q:"［サンプル問題／Excelで編集してください］第一三共のグローバル拠点として当てはまらないのは？", qEn:"[Sample — edit via Excel] Which is NOT a Daiichi Sankyo global site?", options:["米国","インド","英国","架空国"], optionsEn:["USA","India","UK","Fictionland"], correct:3},
+  {type:"opinion", q:"経営陣がもっと海外案件の意思決定スピードを上げるべきだ。", qEn:"Leadership should speed up decision-making on international deals.", options:["強くそう思う","ややそう思う","ややそう思わない","そう思わない"], optionsEn:["Strongly agree","Somewhat agree","Somewhat disagree","Disagree"]},
+  {type:"member",  q:"［サンプル問題／Excelで編集してください］好きな食べ物が「辛いもの」と答えたのは誰？", qEn:"[Sample — edit via Excel] Who said their favorite food is spicy food?", options:["Aさん","Bさん","Cさん","Dさん"], optionsEn:["Person A","Person B","Person C","Person D"], correct:1},
+];
+
+/* =========================================================================
+   言語（i18n）
+   ========================================================================= */
+let LANG = sessionStorage.getItem("fnk_lang") || "ja";
+const STR = {
+  eyebrowJoin:{ja:"GLOBAL BD 屋形船 余興", en:"GLOBAL BD BOAT PARTY"},
+  boardLink:{ja:"座席ボードを見る →", en:"View seat board →"},
+  title:{ja:"席決め航海図", en:"Seat Voyage"},
+  joinIntro:{ja:"名前を入力し、性格診断（9問・約2分）に答えると、あなたの卓と役割が自動で決まります。", en:"Enter your name and answer 9 quick questions (~2 min). Your table and role will be assigned automatically."},
+  nameSelectLabel:{ja:"お名前を選択", en:"Select your name"},
+  nameOther:{ja:"リストにない（自分で入力）", en:"Not on the list (type your own)"},
+  namePlaceholderList:{ja:"お名前（自分で入力）", en:"Your name"},
+  nameLabel:{ja:"お名前", en:"Your name"},
+  namePlaceholder:{ja:"例）山田 太郎 / John Smith", en:"e.g. John Smith"},
+  startBtn:{ja:"診断をはじめる", en:"Start the quiz"},
+  pleaseEnterName:{ja:"お名前を入力してください", en:"Please enter your name"},
+  quizEyebrow:{ja:"性格診断", en:"PERSONALITY QUIZ"},
+  backBtn:{ja:"← 前の質問", en:"← Previous"},
+  decidingTable:{ja:"卓を決めています…", en:"Assigning your table…"},
+  resultEyebrow:{ja:"診断結果", en:"YOUR RESULT"},
+  tableDecided:{ja:"さん", en:""},
+  tableDecidedSub:{ja:"あなたの卓が決まりました。", en:"Your table has been decided."},
+  meisterTitle:{ja:"⛵ あなたはこの卓の「マイスター」です", en:"⛵ You are this table's Quiz Meister"},
+  meisterDesc:{ja:"リーダー気質が最も高いと診断されたため、テーブルクイズの回答係に任命されました。船の上ではみんなで相談しながら答えてくださいね。", en:"You scored highest on leadership at your table, so you'll answer the table quiz on everyone's behalf. Talk it over with your table — teamwork counts!"},
+  yourTendency:{ja:"あなたの傾向", en:"Your tendencies"},
+  balancedNote:{ja:"卓の人数バランスを取るため、最も弱い個性の軸だけを調整し、この卓になりました。あなたらしさが一番出ている軸はそのまま活きています。", en:"To keep tables balanced, your weakest trait was nudged to fill this table — your strongest traits stayed exactly as diagnosed."},
+  goBoardBtn:{ja:"座席ボードを見る", en:"View seat board"},
+  goTableBtn:{ja:"自分の卓のクイズへ", en:"Go to your table quiz"},
+  boardEyebrow:{ja:"SEAT BOARD", en:"SEAT BOARD"},
+  boardTitle:{ja:"屋形船 座席案内", en:"Boat Seating Board"},
+  joinLink:{ja:"参加登録へ →", en:"Join the quiz →"},
+  noOneYet:{ja:"まだ誰もいません", en:"No one yet"},
+  waitAdmin:{ja:"運営がクイズを開始するまでお待ちください…", en:"Waiting for the organizer to start the quiz…"},
+  meisterOfTable:{ja:"⛵ あなたはこの卓のマイスターです", en:"⛵ You are this table's Quiz Meister"},
+  quizComplete:{ja:"回答完了！", en:"All done!"},
+  tableScoreLabel:{ja:"この卓のスコア：", en:"Table score: "},
+  ptsLabel:{ja:"点", en:"pts"},
+  viewRanking:{ja:"ランキングを見る", en:"View ranking"},
+  discussTime:{ja:"相談タイム", en:"Discuss with your table"},
+  discussDesc:{ja:"マイスターが代表して回答します。みんなで相談してヒントを伝えましょう！", en:"The Meister will answer for the table. Talk it over and share your best guess!"},
+  notRegistered:{ja:"先に名前登録と性格診断を行ってください。", en:"Please register your name and take the quiz first."},
+  joinCta:{ja:"参加登録へ", en:"Join now"},
+  typeOpinion:{ja:"意見", en:"Opinion"},
+  typeMember:{ja:"部員当て", en:"Guess Who"},
+  typeTrivia:{ja:"トリビア", en:"Trivia"},
+  answeredOpinion:{ja:"回答しました", en:"Answer recorded"},
+  correctMsg:{ja:"正解！ +2点", en:"Correct! +2 pts"},
+  wrongMsg:{ja:"残念…", en:"Not quite…"},
+  adminLoginEyebrow:{ja:"管理者ログイン", en:"ADMIN LOGIN"},
+  adminPanelTitle:{ja:"運営パネル", en:"Organizer Panel"},
+  adminPwPlaceholder:{ja:"管理者パスワード", en:"Admin password"},
+  loginBtn:{ja:"ログイン", en:"Log in"},
+  wrongPw:{ja:"パスワードが違います", en:"Incorrect password"},
+  step1Title:{ja:"① 卓ごとにクイズを開始", en:"① Start the quiz per table"},
+  settingsTitle:{ja:"卓数・定員の設定", en:"Table count & capacity"},
+  settingsDesc:{ja:"参加人数に合わせて卓数と1卓あたりの定員を設定してください。保存すると座席（参加者データ）がリセットされ、皆さんに性格診断をやり直してもらう必要があります。", en:"Set the number of tables and capacity per table to match your headcount. Saving resets seating (participant data) — everyone will need to retake the quiz."},
+  tableCountLabel:{ja:"卓数", en:"Number of tables"},
+  capacityLabel:{ja:"1卓あたりの定員", en:"Capacity per table"},
+  saveSettingsBtn:{ja:"設定を保存", en:"Save settings"},
+  settingsWarn:{ja:"保存すると参加者データが自動でリセットされます。イベント開始前に設定してください。", en:"Saving automatically resets participant data. Set this before the event starts."},
+  settingsConfirm:{ja:"卓数・定員を変更すると、現在の参加者データはすべて消去されます。よろしいですか？", en:"Changing the table count/capacity will clear all current participant data. Continue?"},
+  settingsSaved:{ja:"設定を保存し、座席をリセットしました", en:"Settings saved and seating reset"},
+  step2Title:{ja:"② クイズ内容をExcelで更新", en:"② Update quiz content via Excel"},
+  step2Desc:{ja:"シート「Personality」「TableQuiz」「Roster」を持つ .xlsx をアップロードすると内容が即座に反映されます。", en:"Upload an .xlsx with sheets \"Personality\", \"TableQuiz\", \"Roster\" to update content instantly for everyone."},
+  downloadTemplateBtn:{ja:"現在の内容をExcelでダウンロード", en:"Download current content as Excel"},
+  step3Title:{ja:"③ ランキング", en:"③ Ranking"},
+  resetTitle:{ja:"リハーサル用リセット", en:"Rehearsal reset"},
+  resetDesc:{ja:"参加者データと卓の状態をすべて消去します（クイズ内容は保持）。本番前のテストで使ってください。", en:"Clears all participant data and table state (quiz content is kept). Use this after testing, before the real event."},
+  resetBtn:{ja:"全データをリセット", en:"Reset all data"},
+  resetConfirm:{ja:"本当に全参加者データをリセットしますか？", en:"Are you sure you want to reset all participant data?"},
+  resetDone:{ja:"リセットしました", en:"Reset complete"},
+  quizStarted:{ja:"開始済み ✓", en:"Started ✓"},
+  quizStartBtn:{ja:"クイズ開始", en:"Start quiz"},
+  quizStartedToast:{ja:" のクイズを開始しました", en:": quiz started"},
+  tableResetBtn:{ja:"この卓だけリセット", en:"Reset this table only"},
+  tableResetConfirm:{ja:"この卓のクイズ進行とスコアをリセットします（座席はそのまま）。よろしいですか？", en:"This will reset this table's quiz progress and score (seating stays the same). Continue?"},
+  tableResetToast:{ja:" をリセットしました（座席はそのまま）", en:": table quiz reset (seating kept)"},
+  scoreLabel:{ja:"スコア：", en:"Score: "},
+  rankHeaderRank:{ja:"順位", en:"Rank"},
+  rankHeaderTable:{ja:"卓", en:"Table"},
+  rankHeaderScore:{ja:"スコア", en:"Score"},
+  updatedQuiz:{ja:"クイズ内容を更新しました", en:"Quiz content updated"},
+  peopleCount:{ja:"名", en:" people"},
+};
+function T(key){ const e = STR[key]; if(!e) return ""; return e[LANG] ?? e.ja; }
+function L(ja, en){ if(LANG==="en") return (en && en.trim()) ? en : ja; return ja; }
+
+function applyLangButtons(){
+  document.getElementById("langJa").classList.toggle("active", LANG==="ja");
+  document.getElementById("langEn").classList.toggle("active", LANG==="en");
+  document.documentElement.lang = LANG;
+}
+document.getElementById("langJa").addEventListener("click", ()=>{ LANG="ja"; sessionStorage.setItem("fnk_lang","ja"); applyLangButtons(); route(); });
+document.getElementById("langEn").addEventListener("click", ()=>{ LANG="en"; sessionStorage.setItem("fnk_lang","en"); applyLangButtons(); route(); });
+applyLangButtons();
+
+/* =========================================================================
+   アプリ本体（DB接続）
+   ========================================================================= */
+let USE_FIREBASE = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
+let db;
+if (USE_FIREBASE) {
+  const fb = initializeApp(firebaseConfig);
+  db = getDatabase(fb);
+}
+
+const LOCAL_KEY = "funanoseki_mock_db_v1";
+function readLocal(){ try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; }catch(e){ return {}; } }
+function writeLocal(obj){ localStorage.setItem(LOCAL_KEY, JSON.stringify(obj)); bc.postMessage("update"); }
+const bc = new BroadcastChannel("funanoseki_mock_db_v1_channel");
+function getAtPath(obj, path){ return path.split("/").filter(Boolean).reduce((o,k)=> (o&&o[k]!==undefined)?o[k]:undefined, obj); }
+function setAtPath(obj, path, value){
+  const parts = path.split("/").filter(Boolean);
+  let cur = obj;
+  for(let i=0;i<parts.length-1;i++){ if(!cur[parts[i]]) cur[parts[i]]={}; cur = cur[parts[i]]; }
+  if(parts.length===0){ return value; }
+  cur[parts[parts.length-1]] = value;
+  return obj;
+}
+
+const DB = {
+  async set(path, value){
+    if(USE_FIREBASE){ return set(ref(db,path), value); }
+    const data = readLocal(); setAtPath(data, path, value); writeLocal(data);
+  },
+  async update(path, value){
+    if(USE_FIREBASE){ return update(ref(db,path), value); }
+    const data = readLocal();
+    const existing = getAtPath(data, path) || {};
+    setAtPath(data, path, Object.assign({}, existing, value)); writeLocal(data);
+  },
+  async push(path, value){
+    if(USE_FIREBASE){ const r = push(ref(db,path)); await set(r, value); return r.key; }
+    const data = readLocal();
+    const key = "k"+Date.now()+Math.random().toString(36).slice(2,7);
+    const existing = getAtPath(data, path) || {};
+    existing[key] = value;
+    setAtPath(data, path, existing); writeLocal(data);
+    return key;
+  },
+  async get(path){
+    if(USE_FIREBASE){ const s = await get(ref(db,path)); return s.exists()? s.val(): null; }
+    const data = readLocal(); return getAtPath(data, path) ?? null;
+  },
+  async remove(path){
+    if(USE_FIREBASE){ return remove(ref(db,path)); }
+    const data = readLocal(); setAtPath(data, path, null); writeLocal(data);
+  },
+  onValue(path, cb){
+    if(USE_FIREBASE){
+      const r = ref(db, path);
+      const unsub = onValue(r, (snap)=> cb(snap.exists()? snap.val(): null));
+      return unsub;
+    }
+    const handler = ()=> cb(getAtPath(readLocal(), path) ?? null);
+    handler();
+    bc.addEventListener("message", handler);
+    window.addEventListener("storage", handler);
+    return ()=>{ bc.removeEventListener("message", handler); window.removeEventListener("storage", handler); };
+  }
+};
+
+/* ---- ユーティリティ ---- */
+function esc(s){ return (s+"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){
+  const t = document.createElement("div"); t.className="toast"; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
+}
+function clampTableCount(n){ return Math.max(MIN_TABLE_COUNT, Math.min(MAX_TABLE_COUNT, n||DEFAULT_TABLE_COUNT)); }
+function getActiveThemes(cfg){
+  const n = clampTableCount(cfg && cfg.tableCount);
+  return GAME_THEMES.slice(0, n);
+}
+function getCapacity(cfg){
+  return (cfg && cfg.capacityPerTable) || DEFAULT_CAPACITY;
+}
+
+/* ---- 初期データ投入 ---- */
+async function ensureConfig(){
+  const existing = await DB.get("event/config");
+  if(!existing){
+    await DB.set("event/config", {
+      personality: DEFAULT_PERSONALITY,
+      tableQuiz: DEFAULT_TABLE_QUIZ,
+      roster: [],
+      tableCount: DEFAULT_TABLE_COUNT,
+      capacityPerTable: DEFAULT_CAPACITY
+    });
+  }
+  const cfg = await DB.get("event/config");
+  const themes = getActiveThemes(cfg);
+  const tablesExisting = await DB.get("tables");
+  if(!tablesExisting){
+    await reinitTablesNode(themes);
+  }
+}
+async function reinitTablesNode(themes){
+  const init = {};
+  themes.forEach((t,i)=>{ init[i] = { name:t.name, quizStarted:false, score:0, answers:{} }; });
+  await DB.set("tables", init);
+}
+
+/* =========================================================================
+   卓バランシング・ロジック（案2の発展版：レトロゲーム・キャラの
+   「性格ベクトル」に一番近い卓へ割り当て）
+   ・診断の生スコアを -1〜+1 に正規化し、各ゲームテーマの性格ベクトルとの
+     距離が一番近い卓を「本来の卓」とする
+   ・その卓がすでに定員(capacityPerTable)に達していたら、次に近いテーマ…
+     と順に空いている卓を探す（＝一番近いキャラは変わらず、僅差の
+     "隠れキャラ" に回るイメージ）
+   ・全卓が満員なら、その時点で一番空いている卓に入れる
+   ========================================================================= */
+function normalizeScores(scores){
+  return { A: scores.A/3, B: scores.B/3, C: scores.C/3 };
+}
+function distanceToTheme(norm, theme){
+  const dx = norm.A - theme.vec.A, dy = norm.B - theme.vec.B, dz = norm.C - theme.vec.C;
+  return Math.sqrt(dx*dx + dy*dy + dz*dz);
+}
+async function assignTable(scores, themes, capacity){
+  const counts = await getTableCounts(themes.length);
+  const norm = normalizeScores(scores);
+  const ranked = themes
+    .map((t,i)=>({ i, d: distanceToTheme(norm, t) }))
+    .sort((a,b)=> a.d - b.d);
+
+  for(let rank=0; rank<ranked.length; rank++){
+    const idx = ranked[rank].i;
+    if(counts[idx] < capacity) return { tableIndex: idx, balanced: rank>0 };
+  }
+  // 全卓満員：一番空いている卓へ
+  let minIdx = 0;
+  for(let i=1;i<themes.length;i++){ if(counts[i] < counts[minIdx]) minIdx = i; }
+  return { tableIndex: minIdx, balanced:true };
+}
+async function getTableCounts(themeCount){
+  const participants = (await DB.get("participants")) || {};
+  const counts = new Array(themeCount).fill(0);
+  Object.values(participants).forEach(p=>{ if(p.tableIndex!=null && p.tableIndex<themeCount) counts[p.tableIndex]++; });
+  return counts;
+}
+
+/* =========================================================================
+   ルーティング
+   ========================================================================= */
+const app = document.getElementById("app");
+function route(){
+  const hash = location.hash.replace("#/","") || "join";
+  const [page] = hash.split("?");
+  if(page==="join") renderJoin();
+  else if(page==="quiz") renderPersonalityQuiz();
+  else if(page==="result") renderResult();
+  else if(page==="board") renderBoard();
+  else if(page==="table") renderTable();
+  else if(page==="admin") renderAdmin();
+  else renderJoin();
+}
+window.addEventListener("hashchange", route);
+
+/* =========================================================================
+   画面: 参加 (名前入力)
+   ========================================================================= */
+async function renderJoin(){
+  app.innerHTML = `<div class="center" style="padding:60px 0;"><span class="spinner"></span></div>`;
+  await ensureConfig();
+  const cfg = await DB.get("event/config");
+  const roster = (cfg && cfg.roster) || [];
+  app.innerHTML = `
+    <div class="header-top">
+      <div class="eyebrow">${T('eyebrowJoin')}</div>
+      <a class="small-link" href="#/board">${T('boardLink')}</a>
+    </div>
+    <h1 class="disp" style="font-size:30px; margin:6px 0 4px;">${T('title')}</h1>
+    <p class="muted">${T('joinIntro')}</p>
+    <div class="card">
+      ${roster.length ? `
+        <label class="muted" style="display:block; margin-bottom:8px;">${T('nameSelectLabel')}</label>
+        <select id="nameSelect" style="margin-bottom:14px;">
+          <option value="">-- ${LANG==='en'?'Select':'選択してください'} --</option>
+          ${roster.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}
+          <option value="__other__">${T('nameOther')}</option>
+        </select>
+        <input id="nameInput" type="text" placeholder="${T('namePlaceholderList')}" style="display:none; margin-bottom:14px;">
+      ` : `
+        <label class="muted" style="display:block; margin-bottom:8px;">${T('nameLabel')}</label>
+        <input id="nameInput" type="text" placeholder="${T('namePlaceholder')}" style="margin-bottom:14px;">
+      `}
+      <button class="btn" id="startBtn" style="width:100%;">${T('startBtn')}</button>
+    </div>
+  `;
+  const sel = document.getElementById("nameSelect");
+  const inp = document.getElementById("nameInput");
+  if(sel){
+    sel.addEventListener("change", ()=>{
+      if(sel.value==="__other__"){ inp.style.display="block"; inp.focus(); }
+      else{ inp.style.display="none"; }
+    });
+  }
+  document.getElementById("startBtn").addEventListener("click", ()=>{
+    let name = "";
+    if(sel && sel.value && sel.value!=="__other__") name = sel.value;
+    else if(inp) name = inp.value.trim();
+    if(!name){ toast(T('pleaseEnterName')); return; }
+    sessionStorage.setItem("fnk_name", name);
+    location.hash = "#/quiz";
+  });
+}
+
+/* =========================================================================
+   画面: 性格診断
+   ========================================================================= */
+let quizState = { idx:0, answers:[], questions:[] };
+async function renderPersonalityQuiz(){
+  const name = sessionStorage.getItem("fnk_name");
+  if(!name){ location.hash="#/join"; return; }
+  if(quizState.questions.length===0){
+    const cfg = await DB.get("event/config");
+    quizState.questions = (cfg && cfg.personality && cfg.personality.length) ? cfg.personality : DEFAULT_PERSONALITY;
+  }
+  drawQuizStep();
+}
+function drawQuizStep(){
+  const total = quizState.questions.length;
+  const i = quizState.idx;
+  if(i>=total){ finishPersonalityQuiz(); return; }
+  const q = quizState.questions[i];
+  app.innerHTML = `
+    <div class="eyebrow">${T('quizEyebrow')}</div>
+    <div class="progress-track"><div class="progress-fill" style="width:${Math.round(i/total*100)}%"></div></div>
+    <div class="qnum">Q${i+1} / ${total}</div>
+    <h2 class="disp" style="margin:8px 0 20px; font-size:22px; line-height:1.5;">${esc(L(q.q, q.qEn))}</h2>
+    <div class="card">
+      <button class="option-btn" data-v="1">${esc(L(q.pos, q.posEn))}</button>
+      <button class="option-btn" data-v="-1">${esc(L(q.neg, q.negEn))}</button>
+    </div>
+    ${i>0 ? `<button class="btn secondary" id="backBtn">${T('backBtn')}</button>` : ``}
+  `;
+  app.querySelectorAll(".option-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      quizState.answers[i] = { axis:q.axis, value: parseInt(btn.dataset.v,10) };
+      quizState.idx++;
+      drawQuizStep();
+    });
+  });
+  const backBtn = document.getElementById("backBtn");
+  if(backBtn) backBtn.addEventListener("click", ()=>{ quizState.idx--; drawQuizStep(); });
+}
+
+async function finishPersonalityQuiz(){
+  app.innerHTML = `<div class="center" style="padding:60px 0;"><span class="spinner"></span><p class="muted" style="margin-top:14px;">${T('decidingTable')}</p></div>`;
+  const scores = { A:0, B:0, C:0 };
+  quizState.answers.forEach(a=>{ scores[a.axis]+= a.value; });
+  const name = sessionStorage.getItem("fnk_name");
+
+  const cfg = await DB.get("event/config");
+  const themes = getActiveThemes(cfg);
+  const capacity = getCapacity(cfg);
+  const { tableIndex, balanced } = await assignTable(scores, themes, capacity);
+
+  const participant = { name, scores, tableIndex, balanced, ts: Date.now() };
+  const pid = await DB.push("participants", participant);
+  sessionStorage.setItem("fnk_pid", pid);
+  sessionStorage.setItem("fnk_table", String(tableIndex));
+
+  await recomputeMeister(tableIndex);
+
+  location.hash = "#/result";
+}
+
+async function recomputeMeister(tableIndex){
+  const allParticipants = (await DB.get("participants")) || {};
+  const members = Object.entries(allParticipants).filter(([id,p])=> p.tableIndex===tableIndex);
+  if(members.length===0) return;
+  members.sort((a,b)=>{
+    if(b[1].scores.C !== a[1].scores.C) return b[1].scores.C - a[1].scores.C;
+    return a[1].ts - b[1].ts;
+  });
+  const meisterId = members[0][0];
+  await DB.update(`tables/${tableIndex}`, { meisterId });
+}
+
+/* =========================================================================
+   画面: 診断結果
+   ========================================================================= */
+async function renderResult(){
+  const pid = sessionStorage.getItem("fnk_pid");
+  const tableIndex = parseInt(sessionStorage.getItem("fnk_table"),10);
+  if(pid==null || isNaN(tableIndex)){ location.hash="#/join"; return; }
+  const p = await DB.get(`participants/${pid}`);
+  const tableMeta = await DB.get(`tables/${tableIndex}`);
+  const cfg = await DB.get("event/config");
+  const themes = getActiveThemes(cfg);
+  const tinfo = themes[tableIndex];
+  const isMeister = tableMeta && tableMeta.meisterId===pid;
+
+  function bar(axis){
+    const val = p.scores[axis.id];
+    const pct = Math.round(((val+3)/6)*100);
+    const label = val>=0 ? L(axis.pos,axis.posEn) : L(axis.neg,axis.negEn);
+    return `
+      <div class="axis-row">
+        <div class="axis-label"><span>${L(axis.neg,axis.negEn)}</span><span class="pill">${esc(label)}</span><span>${L(axis.pos,axis.posEn)}</span></div>
+        <div class="axis-bar"><div class="axis-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="eyebrow">${T('resultEyebrow')}</div>
+    <h1 class="disp" style="font-size:26px; margin:6px 0 2px;">${esc(p.name)}${T('tableDecided')}</h1>
+    <p class="muted">${T('tableDecidedSub')}</p>
+    <div class="card">
+      <div class="pill" style="font-size:14px;">${esc(tinfo.kana)} / ${esc(tinfo.nameEn)}</div>
+      <h2 class="disp" style="font-size:28px; margin:10px 0 4px; color:var(--gold-bright);">${esc(L(tinfo.name, tinfo.nameEn))}</h2>
+      <p class="muted" style="margin-bottom:14px;">${esc(L(tinfo.descJa, tinfo.descEn))}</p>
+      ${isMeister ? `<div class="badge-meister">${T('meisterTitle')}</div><p class="muted" style="margin-top:8px;">${T('meisterDesc')}</p>` : ``}
+      ${p.balanced ? `<div class="note-box">⚖️ ${T('balancedNote')}</div>` : ``}
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0; font-size:16px; color:var(--gold-bright);">${T('yourTendency')}</h3>
+      ${AXES.map(bar).join("")}
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="#/board" class="btn secondary">${T('goBoardBtn')}</a>
+      <a href="#/table" class="btn">${T('goTableBtn')}</a>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   画面: 座席ボード（投影用）
+   ========================================================================= */
+let boardUnsub = null;
+async function renderBoard(){
+  app.innerHTML = `
+    <div class="header-top">
+      <div class="eyebrow">${T('boardEyebrow')}</div>
+      <a class="small-link" href="#/join">${T('joinLink')}</a>
+    </div>
+    <h1 class="disp" style="font-size:28px; margin:6px 0 18px;">${T('boardTitle')}</h1>
+    <div id="boardGrid" class="board-grid"></div>
+  `;
+  if(boardUnsub) boardUnsub();
+  boardUnsub = DB.onValue("participants", async ()=>{
+    const participants = (await DB.get("participants")) || {};
+    const tables = (await DB.get("tables")) || {};
+    const cfg = await DB.get("event/config");
+    const themes = getActiveThemes(cfg);
+    const grid = document.getElementById("boardGrid");
+    if(!grid) return;
+    grid.innerHTML = themes.map((t,i)=>{
+      const members = Object.entries(participants).filter(([id,p])=>p.tableIndex===i);
+      const meisterId = tables[i] && tables[i].meisterId;
+      return `
+        <div class="lantern">
+          <div class="count">${members.length}${T('peopleCount')}</div>
+          <h3>${esc(L(t.name,t.nameEn))}</h3>
+          <div class="concept-en">${esc(LANG==='en' ? t.kana : t.nameEn)}</div>
+          <div class="concept">${esc(L(t.descJa,t.descEn))}</div>
+          <div class="members">
+            ${members.length===0 ? `<span class="waiting-dot"></span> <span style="color:rgba(243,236,219,.4)">${T('noOneYet')}</span>` :
+              members.sort((a,b)=>a[1].ts-b[1].ts).map(([id,p])=>`<span class="m ${id===meisterId?'meister':''}">${id===meisterId?'⛵ ':''}${esc(p.name)}</span>`).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
+  });
+}
+
+/* =========================================================================
+   画面: 卓ごとのクイズ
+   ========================================================================= */
+let tableUnsub = [];
+function clearTableUnsub(){ tableUnsub.forEach(u=>u&&u()); tableUnsub=[]; }
+async function renderTable(){
+  clearTableUnsub();
+  const pid = sessionStorage.getItem("fnk_pid");
+  const tableIndex = parseInt(sessionStorage.getItem("fnk_table"),10);
+  if(pid==null || isNaN(tableIndex)){
+    app.innerHTML = `<div class="card"><p class="muted">${T('notRegistered')}</p><a class="btn" href="#/join">${T('joinCta')}</a></div>`;
+    return;
+  }
+  const cfgEarly = await DB.get("event/config");
+  const themes = getActiveThemes(cfgEarly);
+  const tinfo = themes[tableIndex];
+  app.innerHTML = `
+    <div class="eyebrow">${esc(LANG==='en'?tinfo.nameEn:tinfo.kana)}</div>
+    <h1 class="disp" style="font-size:26px; margin:6px 0 16px;">${esc(L(tinfo.name,tinfo.nameEn))}</h1>
+    <div id="tableContent"><div class="center"><span class="spinner"></span></div></div>
+  `;
+  const contentEl = document.getElementById("tableContent");
+
+  const unsub = DB.onValue(`tables/${tableIndex}`, async (tableData)=>{
+    if(!tableData) return;
+    const isMeister = tableData.meisterId===pid;
+    const cfg = await DB.get("event/config");
+    const questions = (cfg && cfg.tableQuiz && cfg.tableQuiz.length) ? cfg.tableQuiz : DEFAULT_TABLE_QUIZ;
+
+    if(!tableData.quizStarted){
+      contentEl.innerHTML = `
+        <div class="card center">
+          <p class="waiting-dot"></p>
+          <p class="muted" style="margin-top:10px;">${T('waitAdmin')}</p>
+          ${isMeister ? `<div class="badge-meister" style="margin-top:14px;">${T('meisterOfTable')}</div>` : ``}
+        </div>
+      `;
+      return;
+    }
+
+    const myAnswers = tableData.answers || {};
+    const answeredCount = Object.keys(myAnswers).length;
+
+    if(answeredCount >= questions.length){
+      const score = tableData.score || 0;
+      contentEl.innerHTML = `
+        <div class="card center">
+          <h2 class="disp" style="color:var(--gold-bright);">${T('quizComplete')}</h2>
+          <p class="muted">${T('tableScoreLabel')}<strong style="color:var(--paper); font-size:22px;">${score}</strong> ${T('ptsLabel')}</p>
+          <a href="#/board" class="btn secondary" style="margin-top:10px;">${T('viewRanking')}</a>
+        </div>
+      `;
+      return;
+    }
+
+    if(!isMeister){
+      const qNow = questions[answeredCount];
+      contentEl.innerHTML = `
+        <div class="card">
+          <p class="pill">${T('discussTime')}</p>
+          <h2 class="disp" style="font-size:20px; margin:12px 0;">${esc(L(qNow.q,qNow.qEn))}</h2>
+          <p class="muted">${T('discussDesc')}</p>
+        </div>
+      `;
+      return;
+    }
+
+    const qNow = questions[answeredCount];
+    const opts = (LANG==="en" && qNow.optionsEn && qNow.optionsEn.length) ? qNow.optionsEn : qNow.options;
+    let optsHtml = "";
+    if(qNow.type==="opinion"){
+      optsHtml = `<div class="opinion-scale">${opts.map((o,idx)=>`<button class="opt" data-idx="${idx}">${esc(o)}</button>`).join("")}</div>`;
+    } else {
+      optsHtml = opts.map((o,idx)=>`<button class="option-btn opt" data-idx="${idx}">${esc(o)}</button>`).join("");
+    }
+    const typeLabel = qNow.type==='opinion'?T('typeOpinion'):qNow.type==='member'?T('typeMember'):T('typeTrivia');
+    contentEl.innerHTML = `
+      <div class="card">
+        <div class="qnum">Q${answeredCount+1} / ${questions.length}　<span class="pill">${typeLabel}</span></div>
+        <h2 class="disp" style="font-size:20px; margin:10px 0 16px; line-height:1.5;">${esc(L(qNow.q,qNow.qEn))}</h2>
+        ${optsHtml}
+      </div>
+    `;
+    contentEl.querySelectorAll(".opt").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const idx = parseInt(btn.dataset.idx,10);
+        const isCorrect = qNow.type!=="opinion" ? (idx===qNow.correct) : true;
+        const points = qNow.type==="opinion" ? 1 : (isCorrect?2:0);
+        const newAnswers = Object.assign({}, myAnswers, { [answeredCount]: { idx, points } });
+        const newScore = Object.values(newAnswers).reduce((s,a)=>s+(a.points||0),0);
+        await DB.update(`tables/${tableIndex}`, { answers:newAnswers, score:newScore });
+        toast(qNow.type==="opinion" ? T('answeredOpinion') : (isCorrect ? T('correctMsg') : T('wrongMsg')));
+      });
+    });
+  });
+  tableUnsub.push(unsub);
+}
+
+/* =========================================================================
+   画面: 管理者パネル
+   ========================================================================= */
+let adminUnsub = [];
+function clearAdminUnsub(){ adminUnsub.forEach(u=>u&&u()); adminUnsub=[]; }
+async function renderAdmin(){
+  clearAdminUnsub();
+  const authed = sessionStorage.getItem("fnk_admin")==="1";
+  if(!authed){
+    app.innerHTML = `
+      <div class="eyebrow">${T('adminLoginEyebrow')}</div>
+      <h1 class="disp" style="font-size:24px; margin:6px 0 16px;">${T('adminPanelTitle')}</h1>
+      <div class="card">
+        <input id="pw" type="password" placeholder="${T('adminPwPlaceholder')}" style="margin-bottom:14px;">
+        <button class="btn" id="loginBtn" style="width:100%;">${T('loginBtn')}</button>
+      </div>
+    `;
+    document.getElementById("loginBtn").addEventListener("click", ()=>{
+      const pw = document.getElementById("pw").value;
+      if(ADMIN_PASSWORDS.includes(pw)){
+        sessionStorage.setItem("fnk_admin","1");
+        renderAdmin();
+      } else {
+        toast(T('wrongPw'));
+      }
+    });
+    return;
+  }
+
+  await ensureConfig();
+  let cfg = await DB.get("event/config");
+  let themes = getActiveThemes(cfg);
+  app.innerHTML = `
+    <div class="header-top">
+      <div class="eyebrow">${T('adminPanelTitle')}</div>
+      <a class="small-link" href="#/board">${T('boardLink')}</a>
+    </div>
+    <h1 class="disp" style="font-size:26px; margin:6px 0 16px;">${T('adminPanelTitle')}</h1>
+
+    <div class="card">
+      <h3 style="margin-top:0;">${T('settingsTitle')}</h3>
+      <p class="muted">${T('settingsDesc')}</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin:12px 0;">
+        <div style="flex:1; min-width:140px;">
+          <label class="muted" style="display:block; margin-bottom:6px; font-size:12.5px;">${T('tableCountLabel')}</label>
+          <select id="tableCountInput">
+            ${Array.from({length: MAX_TABLE_COUNT-MIN_TABLE_COUNT+1}, (_,i)=>MIN_TABLE_COUNT+i).map(n=>`<option value="${n}" ${n===clampTableCount(cfg.tableCount)?'selected':''}>${n}</option>`).join("")}
+          </select>
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <label class="muted" style="display:block; margin-bottom:6px; font-size:12.5px;">${T('capacityLabel')}</label>
+          <input id="capacityInput" type="text" inputmode="numeric" value="${getCapacity(cfg)}">
+        </div>
+      </div>
+      <button class="btn" id="saveSettingsBtn">${T('saveSettingsBtn')}</button>
+      <p class="muted" style="margin-top:8px; font-size:12.5px;">⚠️ ${T('settingsWarn')}</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">${T('step1Title')}</h3>
+      <div id="tableControls" class="board-grid"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">${T('step2Title')}</h3>
+      <p class="muted">${T('step2Desc')}</p>
+      <input type="file" id="xlsxInput" accept=".xlsx" style="margin-bottom:10px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn secondary" id="downloadTemplate">${T('downloadTemplateBtn')}</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">${T('step3Title')}</h3>
+      <table class="score-table" id="rankTable"></table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0; color:var(--vermillion);">${T('resetTitle')}</h3>
+      <p class="muted">${T('resetDesc')}</p>
+      <button class="btn danger" id="resetBtn">${T('resetBtn')}</button>
+    </div>
+  `;
+
+  document.getElementById("saveSettingsBtn").addEventListener("click", async ()=>{
+    const newCount = clampTableCount(parseInt(document.getElementById("tableCountInput").value,10));
+    const newCap = Math.max(1, parseInt(document.getElementById("capacityInput").value,10) || DEFAULT_CAPACITY);
+    if(!confirm(T('settingsConfirm'))) return;
+    await DB.update("event/config", { tableCount:newCount, capacityPerTable:newCap });
+    await DB.remove("participants");
+    await reinitTablesNode(GAME_THEMES.slice(0,newCount));
+    toast(T('settingsSaved'));
+    renderAdmin();
+  });
+
+  const unsub = DB.onValue("tables", (tables)=>{
+    const el = document.getElementById("tableControls");
+    if(!el || !tables) return;
+    el.innerHTML = themes.map((t,i)=>{
+      const td = tables[i] || {};
+      return `
+        <div class="lantern" style="min-height:auto;">
+          <h3 style="font-size:16px;">${esc(L(t.name,t.nameEn))}</h3>
+          <div class="concept">${T('scoreLabel')}${td.score||0}${T('ptsLabel')}</div>
+          <button class="btn ${td.quizStarted?'secondary':''}" data-start-i="${i}" style="width:100%; margin-top:8px; font-size:13px; padding:10px;">
+            ${td.quizStarted ? T('quizStarted') : T('quizStartBtn')}
+          </button>
+          ${td.quizStarted ? `<button class="btn secondary" data-reset-i="${i}" style="width:100%; margin-top:6px; font-size:12px; padding:8px; color:var(--vermillion); border-color:var(--vermillion);">${T('tableResetBtn')}</button>` : ``}
+        </div>
+      `;
+    }).join("");
+    el.querySelectorAll("button[data-start-i]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const i = btn.dataset.startI;
+        await DB.update(`tables/${i}`, { quizStarted:true });
+        toast(`${L(themes[i].name,themes[i].nameEn)}${T('quizStartedToast')}`);
+      });
+    });
+    el.querySelectorAll("button[data-reset-i]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const i = btn.dataset.resetI;
+        if(!confirm(T('tableResetConfirm'))) return;
+        await DB.update(`tables/${i}`, { quizStarted:false, score:0, answers:{} });
+        toast(`${L(themes[i].name,themes[i].nameEn)}${T('tableResetToast')}`);
+      });
+    });
+    const rankEl = document.getElementById("rankTable");
+    if(rankEl){
+      const rows = themes.map((t,i)=>({name:L(t.name,t.nameEn), score:(tables[i]&&tables[i].score)||0}))
+        .sort((a,b)=>b.score-a.score);
+      rankEl.innerHTML = `<tr><th>${T('rankHeaderRank')}</th><th>${T('rankHeaderTable')}</th><th>${T('rankHeaderScore')}</th></tr>` +
+        rows.map((r,idx)=>`<tr><td>${idx+1}</td><td>${esc(r.name)}</td><td>${r.score}</td></tr>`).join("");
+    }
+  });
+  adminUnsub.push(unsub);
+
+  document.getElementById("resetBtn").addEventListener("click", async ()=>{
+    if(!confirm(T('resetConfirm'))) return;
+    await DB.remove("participants");
+    await reinitTablesNode(themes);
+    toast(T('resetDone'));
+  });
+
+  document.getElementById("downloadTemplate").addEventListener("click", downloadTemplateXlsx);
+  document.getElementById("xlsxInput").addEventListener("change", handleXlsxUpload);
+}
+
+/* ---- Excel 連携（SheetJSは動的読み込み） ---- */
+let xlsxLibPromise = null;
+function loadXlsxLib(){
+  if(xlsxLibPromise) return xlsxLibPromise;
+  xlsxLibPromise = new Promise((resolve,reject)=>{
+    const s = document.createElement("script");
+    s.src = "https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js";
+    s.onload = ()=>resolve(window.XLSX);
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  return xlsxLibPromise;
+}
+
+async function downloadTemplateXlsx(){
+  const XLSX = await loadXlsxLib();
+  const cfg = (await DB.get("event/config")) || {personality:DEFAULT_PERSONALITY, tableQuiz:DEFAULT_TABLE_QUIZ, roster:[]};
+  const wb = XLSX.utils.book_new();
+
+  const pSheet = XLSX.utils.json_to_sheet((cfg.personality||[]).map(q=>({
+    axis:q.axis, question:q.q, question_en:q.qEn||"", positive:q.pos, positive_en:q.posEn||"", negative:q.neg, negative_en:q.negEn||""
+  })));
+  XLSX.utils.book_append_sheet(wb, pSheet, "Personality");
+
+  const tSheet = XLSX.utils.json_to_sheet((cfg.tableQuiz||[]).map(q=>({
+    type:q.type, question:q.q, question_en:q.qEn||"",
+    option1:q.options[0]||"", option2:q.options[1]||"", option3:q.options[2]||"", option4:q.options[3]||"",
+    option1_en:(q.optionsEn&&q.optionsEn[0])||"", option2_en:(q.optionsEn&&q.optionsEn[1])||"",
+    option3_en:(q.optionsEn&&q.optionsEn[2])||"", option4_en:(q.optionsEn&&q.optionsEn[3])||"",
+    correctIndex: q.type==="opinion" ? "" : (q.correct!=null ? q.correct+1 : "")
+  })));
+  XLSX.utils.book_append_sheet(wb, tSheet, "TableQuiz");
+
+  const rSheet = XLSX.utils.json_to_sheet((cfg.roster&&cfg.roster.length?cfg.roster:[""]).map(n=>({name:n})));
+  XLSX.utils.book_append_sheet(wb, rSheet, "Roster");
+
+  XLSX.writeFile(wb, "屋形船クイズ設定.xlsx");
+}
+
+async function handleXlsxUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const XLSX = await loadXlsxLib();
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, {type:"array"});
+
+  const newConfig = { personality:[], tableQuiz:[], roster:[] };
+
+  if(wb.SheetNames.includes("Personality")){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets["Personality"]);
+    newConfig.personality = rows.filter(r=>r.question).map(r=>({
+      axis: String(r.axis||"A").trim().toUpperCase(),
+      q: String(r.question||"").trim(),
+      qEn: String(r.question_en||"").trim(),
+      pos: String(r.positive||"").trim(),
+      posEn: String(r.positive_en||"").trim(),
+      neg: String(r.negative||"").trim(),
+      negEn: String(r.negative_en||"").trim(),
+    }));
+  }
+  if(wb.SheetNames.includes("TableQuiz")){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets["TableQuiz"]);
+    newConfig.tableQuiz = rows.filter(r=>r.question).map(r=>{
+      const options = [r.option1,r.option2,r.option3,r.option4].filter(o=>o!==undefined && o!=="").map(String);
+      const optionsEn = [r.option1_en,r.option2_en,r.option3_en,r.option4_en].filter(o=>o!==undefined && o!=="").map(String);
+      const type = String(r.type||"trivia").trim();
+      const obj = { type, q:String(r.question).trim(), qEn:String(r.question_en||"").trim(), options, optionsEn };
+      if(type!=="opinion" && r.correctIndex){ obj.correct = parseInt(r.correctIndex,10)-1; }
+      return obj;
+    });
+  }
+  if(wb.SheetNames.includes("Roster")){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets["Roster"]);
+    newConfig.roster = rows.filter(r=>r.name).map(r=>String(r.name).trim());
+  }
+
+  if(newConfig.personality.length===0) newConfig.personality = DEFAULT_PERSONALITY;
+  if(newConfig.tableQuiz.length===0) newConfig.tableQuiz = DEFAULT_TABLE_QUIZ;
+
+  await DB.set("event/config", newConfig);
+  toast(T('updatedQuiz'));
+}
+
+/* =========================================================================
+   起動
+   ========================================================================= */
+if(!USE_FIREBASE){
+  console.warn("Firebase未設定のため、ローカル（同一ブラウザのタブ間のみ）のデモモードで動作しています。実運用時は firebaseConfig を設定してください。");
+}
+route();
+</script>
+</body>
+</html>
