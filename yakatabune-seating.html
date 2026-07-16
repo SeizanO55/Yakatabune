@@ -216,9 +216,12 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
   text-align:center; padding:60px 24px; border:2px dashed rgba(232,200,96,.3); border-radius:16px;
 }
 
-/* language toggle - always visible top-right */
-#langToggle{
+/* コントロールバー（言語切替＋サウンド切替）- 常に右上に表示 */
+#controlsBar{
   position:fixed; top:14px; right:14px; z-index:1000;
+  display:flex; align-items:center; gap:8px;
+}
+#langToggle{
   display:flex; background:rgba(13,36,54,.85); border:1px solid rgba(232,200,96,.4);
   border-radius:99px; padding:3px; backdrop-filter:blur(4px);
 }
@@ -227,14 +230,43 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
   padding:6px 12px; border-radius:99px; cursor:pointer; font-family:"Zen Kaku Gothic New",sans-serif;
 }
 #langToggle button.active{background:var(--gold); color:var(--navy-deep);}
+#soundToggle{
+  background:rgba(13,36,54,.85); border:1px solid rgba(232,200,96,.4); color:rgba(243,236,219,.8);
+  border-radius:99px; width:34px; height:34px; font-size:15px; cursor:pointer; backdrop-filter:blur(4px);
+}
+#soundToggle.on{ background:var(--gold); color:var(--navy-deep); border-color:var(--gold); }
 .bi-en{color:rgba(243,236,219,.55); font-size:.82em; display:block; margin-top:2px; font-weight:400;}
+
+/* レトロゲーム風のドット装飾（特定キャラクターに依らないオリジナル演出） */
+.pixel-frame{
+  position:relative;
+  border:3px solid var(--gold-bright);
+  box-shadow:
+    0 0 0 3px var(--navy-deep),
+    0 0 0 6px var(--gold-bright),
+    0 0 24px rgba(232,200,96,.35);
+  image-rendering:pixelated;
+}
+.pixel-sparkle{ display:inline-block; animation: sparkleSpin 1.8s linear infinite; }
+@keyframes sparkleSpin{ 0%,100%{ transform:scale(1) rotate(0deg);} 50%{ transform:scale(1.25) rotate(15deg);} }
+.retro-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:"Zen Kaku Gothic New",sans-serif; font-size:11px; font-weight:900; letter-spacing:.1em;
+  background:var(--navy-deep); color:var(--gold-bright); border:2px solid var(--gold-bright);
+  padding:4px 10px; border-radius:4px;
+}
+@keyframes coinBlink{ 0%,100%{ opacity:1;} 50%{ opacity:.4;} }
+.coin-blink{ animation: coinBlink 1s steps(2) infinite; }
 </style>
 </head>
 <body>
 
-<div id="langToggle">
-  <button id="langJa" class="active">日本語</button>
-  <button id="langEn">English</button>
+<div id="controlsBar">
+  <div id="langToggle">
+    <button id="langJa" class="active">日本語</button>
+    <button id="langEn">English</button>
+  </div>
+  <button id="soundToggle" title="Sound effects">🔇</button>
 </div>
 <div class="seigaiha"></div>
 <div id="app" class="wrap"><div class="center" style="padding:80px 0;"><span class="spinner"></span></div></div>
@@ -498,6 +530,55 @@ function applyLangButtons(){
 document.getElementById("langJa").addEventListener("click", ()=>{ LANG="ja"; sessionStorage.setItem("fnk_lang","ja"); applyLangButtons(); route(); });
 document.getElementById("langEn").addEventListener("click", ()=>{ LANG="en"; sessionStorage.setItem("fnk_lang","en"); applyLangButtons(); route(); });
 applyLangButtons();
+
+/* =========================================================================
+   オリジナル8bit風効果音（Web Audio APIでその場で生成。特定楽曲の複製ではありません）
+   ブラウザの自動再生制限により、ページ内で一度ボタンをクリックするまでは
+   音が鳴らないため、右上の🔇ボタンで明示的にON/OFFできるようにしています。
+   ========================================================================= */
+let soundEnabled = sessionStorage.getItem("fnk_sound")==="1";
+let audioCtx = null;
+function ensureAudioCtx(){
+  if(!audioCtx){
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(Ctx) audioCtx = new Ctx();
+  }
+  return audioCtx;
+}
+function playTone(freq, startOffset, duration, type, gainVal){
+  if(!soundEnabled) return;
+  try{
+    const ctx = ensureAudioCtx();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || "square";
+    osc.frequency.value = freq;
+    const t0 = ctx.currentTime + (startOffset||0);
+    gain.gain.setValueAtTime(gainVal||0.05, t0);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + (duration||0.15));
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + (duration||0.15) + 0.02);
+  }catch(e){ /* audio not available; fail silently */ }
+}
+function playJoinChime(){ playTone(880,0,0.1,"square",0.05); playTone(1318.5,0.09,0.14,"square",0.05); }
+function playMeisterChime(){ playTone(659.25,0,0.09,"triangle",0.06); playTone(783.99,0.08,0.09,"triangle",0.06); playTone(987.77,0.16,0.2,"triangle",0.06); }
+function playCorrectChime(){ playTone(1046.5,0,0.08,"square",0.045); playTone(1567.98,0.07,0.12,"square",0.045); }
+function playFanfare(){ [523.25,659.25,783.99,1046.5,1318.51].forEach((f,i)=>playTone(f, i*0.13, 0.22, "square", 0.055)); }
+
+function applySoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(!btn) return;
+  btn.textContent = soundEnabled ? "🔊" : "🔇";
+  btn.classList.toggle("on", soundEnabled);
+}
+document.getElementById("soundToggle").addEventListener("click", ()=>{
+  soundEnabled = !soundEnabled;
+  sessionStorage.setItem("fnk_sound", soundEnabled ? "1" : "0");
+  if(soundEnabled){ const ctx = ensureAudioCtx(); if(ctx && ctx.state==="suspended") ctx.resume(); playJoinChime(); }
+  applySoundButton();
+});
+applySoundButton();
 
 /* =========================================================================
    アプリ本体（DB接続）
@@ -929,6 +1010,8 @@ async function renderBoard(){
         spotlightZone.classList.add("spotlight-anim");
         clearTimeout(spotlightZone._clearTimer);
         spotlightZone._clearTimer = setTimeout(()=>{ if(spotlightZone) spotlightZone.innerHTML = ""; }, 5000);
+        if(changedMeisterTables.length){ playMeisterChime(); }
+        else if(newlyJoined.length){ playJoinChime(); }
       }
     }
     boardPrimed = true;
@@ -1027,6 +1110,7 @@ async function renderTable(){
         const newAnswers = Object.assign({}, myAnswers, { [answeredCount]: { idx, points } });
         const newScore = Object.values(newAnswers).reduce((s,a)=>s+(a.points||0),0);
         await DB.update(`tables/${tableIndex}`, { answers:newAnswers, score:newScore });
+        if(qNow.type!=="opinion" && isCorrect) playCorrectChime();
         toast(qNow.type==="opinion" ? T('answeredOpinion') : (isCorrect ? T('correctMsg') : T('wrongMsg')));
       });
     });
@@ -1044,7 +1128,8 @@ async function renderRules(){
       <a class="small-link" href="#/board">${T('boardLink')}</a>
     </div>
     <div class="hero-title">
-      <h1 class="disp">${T('rulesTitle')}</h1>
+      <span class="retro-badge"><span class="coin-blink">🪙</span> PLAYER VS PLAYER</span>
+      <h1 class="disp" style="margin-top:10px;">${T('rulesTitle')}</h1>
       <p class="muted" style="margin-top:8px; font-size:15px;">${T('rulesSubtitle')}</p>
     </div>
     <div class="card">
@@ -1103,8 +1188,8 @@ async function renderRanking(){
         <h1 class="disp">${T('rankingTitle')}</h1>
       </div>
       ${rows.length ? `
-        <div class="card" style="text-align:center; border-color:var(--gold-bright);">
-          <p class="muted" style="font-size:13px;">${T('rankingWinnerLabel')}</p>
+        <div class="card pixel-frame" style="text-align:center; margin:16px 4px 20px;">
+          <p class="muted" style="font-size:13px;"><span class="pixel-sparkle">✨</span> ${T('rankingWinnerLabel')} <span class="pixel-sparkle">✨</span></p>
           <h2 class="disp" style="font-size:30px; color:var(--gold-bright); margin:6px 0;">${esc(L(rows[0].t.name, rows[0].t.nameEn))}</h2>
           <p style="font-weight:800; font-size:20px;">${T('rankingCongrats')}</p>
         </div>
@@ -1119,6 +1204,7 @@ async function renderRanking(){
         `).join("")}
       </div>
     `;
+    playFanfare();
   });
 }
 
