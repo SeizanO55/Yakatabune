@@ -305,7 +305,7 @@ const ADMIN_PASSWORDS = ["funayakata2026", "kanjiA", "kanjiB"];
 const DEFAULT_TABLE_COUNT = 12;
 const DEFAULT_CAPACITY = 5;
 const MIN_TABLE_COUNT = 4;
-const MAX_TABLE_COUNT = 17; // 用意しているゲームテーマの数が上限
+const MAX_TABLE_COUNT = 20; // 用意しているゲームテーマの数が上限
 
 /* =========================================================================
    4) 卓のコンセプト：レトロゲーム・キャラクター診断
@@ -324,6 +324,9 @@ const GAME_THEMES = [
   { name:"テトリス", nameEn:"Tetris", kana:"テトリス組",
     descJa:"冷静沈着、パズルを組み立てるように物事を考える知将タイプ。", descEn:"Calm and methodical — the strategist who plans every move.",
     vec:{A:-0.4,B:0.9,C:-0.2} },
+  { name:"ファイナルファンタジー", nameEn:"Final Fantasy", kana:"ファイナルファンタジー組",
+    descJa:"じっくり戦略を練り、仲間を導く知将リーダータイプ。", descEn:"A thoughtful strategist who plans carefully and leads the party.",
+    vec:{A:-0.3,B:0.7,C:0.3} },
   { name:"ストリートファイター", nameEn:"Street Fighter", kana:"ストリートファイター組",
     descJa:"直感と勢いで押し切る、闘志あふれる武闘派タイプ。", descEn:"Bold instincts and fighting spirit — leads with momentum.",
     vec:{A:0.9,B:-0.4,C:0.6} },
@@ -333,9 +336,15 @@ const GAME_THEMES = [
   { name:"マインクラフト", nameEn:"Minecraft", kana:"マインクラフト組",
     descJa:"コツコツ積み上げる、創造力豊かな建築家タイプ。", descEn:"Patient and creative — builds something great, one block at a time.",
     vec:{A:-0.2,B:0.5,C:0.4} },
+  { name:"ドラゴンクエスト", nameEn:"Dragon Quest", kana:"ドラゴンクエスト組",
+    descJa:"仲間と着実に冒険を進める、堅実な戦略家タイプ。", descEn:"Steady and methodical — advances the party one careful step at a time.",
+    vec:{A:-0.4,B:0.6,C:-0.1} },
   { name:"パックマン", nameEn:"Pac-Man", kana:"パックマン組",
     descJa:"コツコツ堅実、周りと歩調を合わせるタイプ。", descEn:"Steady and careful, gathering points one at a time.",
     vec:{A:-0.5,B:0.4,C:-0.3} },
+  { name:"ポケモン", nameEn:"Pokémon", kana:"ポケモン組",
+    descJa:"相性を見極めてじっくり戦略を練る、コレクター＆知将タイプ。", descEn:"A strategic collector who studies the matchups before making a move.",
+    vec:{A:0.1,B:0.6,C:0.2} },
   { name:"ドンキーコング", nameEn:"Donkey Kong", kana:"ドンキーコング組",
     descJa:"パワフルで頼りがいのある、力強いタイプ。", descEn:"Powerful and instinctive, with natural leadership muscle.",
     vec:{A:0.6,B:-0.6,C:0.3} },
