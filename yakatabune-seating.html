@@ -394,21 +394,45 @@ const DEFAULT_PERSONALITY = [
   {axis:"A", q:"会議で新しい提案が出た。あなたは？", qEn:"A new idea comes up in a meeting. You…", pos:"面白そう、まず試してみたい", posEn:"Sounds fun — let's just try it", neg:"リスクを洗い出してから判断したい", negEn:"Want to weigh the risks first"},
   {axis:"A", q:"予定外の誘いが来た。あなたは？", qEn:"You get a last-minute invitation. You…", pos:"とりあえず乗ってみる", posEn:"Say yes and figure it out later", neg:"予定と相談してから決める", negEn:"Check your schedule before deciding"},
   {axis:"A", q:"知らない土地に着いた。あなたは？", qEn:"You arrive somewhere new. You…", pos:"当てもなく歩き回りたい", posEn:"Wander around and see what happens", neg:"地図やレビューを先に見たい", negEn:"Look up a map and reviews first"},
+  {axis:"A", q:"初めてのツールを渡された。あなたは？", qEn:"You're handed a tool you've never used before. You…", pos:"とりあえず触ってみる", posEn:"Just start clicking around", neg:"まずマニュアルを読む", negEn:"Read the manual first"},
+  {axis:"A", q:"締め切りが急に早まった。あなたは？", qEn:"A deadline just got moved up. You…", pos:"勢いで一気に片付ける", posEn:"Power through and get it done fast", neg:"優先順位を整理してから動く", negEn:"Reprioritize before diving in"},
   {axis:"B", q:"物事を判断するとき重視するのは？", qEn:"When making a decision, you rely more on…", pos:"データや根拠", posEn:"Data and evidence", neg:"雰囲気や直感", negEn:"Gut feeling and mood"},
   {axis:"B", q:"買い物で悩んだら？", qEn:"Torn between two products? You…", pos:"スペックを比較表にする", posEn:"Make a comparison chart", neg:"見た瞬間の印象で決める", negEn:"Go with your first impression"},
   {axis:"B", q:"議論が白熱してきた。あなたは？", qEn:"A discussion gets heated. You want to…", pos:"数字や事実で整理したくなる", posEn:"Bring it back to facts and numbers", neg:"場の空気を読んで着地させたくなる", negEn:"Read the room and smooth things over"},
+  {axis:"B", q:"旅行の計画を立てるとき", qEn:"When planning a trip, you…", pos:"分刻みのスケジュールを組む", posEn:"Build a detailed, minute-by-minute itinerary", neg:"現地でその都度決める", negEn:"Decide as you go, once you're there"},
+  {axis:"B", q:"初対面の人と話すとき", qEn:"Meeting someone for the first time, you…", pos:"共通点や背景を確認しながら話す", posEn:"Look for common ground and background first", neg:"とりあえず話しながら相性を感じ取る", negEn:"Just start talking and feel out the vibe"},
   {axis:"C", q:"チームで作業するとき、自然と…", qEn:"In group work, you naturally end up…", pos:"進行役になっていることが多い", posEn:"Leading and setting the direction", neg:"ムードメーカーになっていることが多い", negEn:"Keeping the mood light and fun"},
   {axis:"C", q:"意見が対立したら？", qEn:"When opinions clash, you…", pos:"率先して方向性を示したい", posEn:"Step up and set a direction", neg:"みんなの意見をまあまあで丸めたい", negEn:"Try to find a friendly middle ground"},
   {axis:"C", q:"飲み会の幹事を任されたら？", qEn:"You're asked to plan the team party. You…", pos:"きっちり仕切って進めたい", posEn:"Take charge and organize everything", neg:"楽しい雰囲気づくりに徹したい", negEn:"Focus on making it fun for everyone"},
+  {axis:"C", q:"旅行の幹事を任されたら？", qEn:"You're put in charge of planning a group trip. You…", pos:"行程をすべて決めて引っ張る", posEn:"Plan the whole itinerary and lead the way", neg:"みんなの希望を聞いて回る", negEn:"Go around and check what everyone wants"},
+  {axis:"C", q:"会議で気まずい沈黙が流れたら？", qEn:"There's an awkward silence in a meeting. You…", pos:"率先して話を振る", posEn:"Jump in and get the conversation moving", neg:"場を和ませる冗談を言う", negEn:"Crack a joke to lighten the mood"},
 ];
 
 const DEFAULT_TABLE_QUIZ = [
+  {type:"trivia", q:"第6期中期経営計画で掲げた、2030年度の売上収益目標は？", qEn:"What is the FY2030 revenue target set in the 6th Mid-Term Business Plan?", options:["2兆円以上","2.5兆円以上","3兆円以上","3.5兆円以上"], optionsEn:["¥2 trillion+","¥2.5 trillion+","¥3 trillion+","¥3.5 trillion+"], correct:2},
+  {type:"trivia", q:"同じく、2030年度の営業利益目標は？", qEn:"What is the FY2030 operating profit target?", options:["4000億円以上","5000億円以上","6000億円以上","7000億円以上"], optionsEn:["¥400 billion+","¥500 billion+","¥600 billion+","¥700 billion+"], correct:2},
+  {type:"trivia", q:"主力製品「エンハーツ」の一般名は？", qEn:"What is the generic name of the flagship product \"Enhertu\"?", options:["トラスツズマブ デルクステカン","ダトポタマブ デルクステカン","パトリツマブ デルクステカン","ペムブロリズマブ"], optionsEn:["Trastuzumab deruxtecan","Datopotamab deruxtecan","Patritumab deruxtecan","Pembrolizumab"], correct:0},
+  {type:"trivia", q:"ダトロウェイ（datopotamab deruxtecan）が主に狙う標的は？", qEn:"What is the primary target of Datroway (datopotamab deruxtecan)?", options:["HER2","Trop-2","PD-1","EGFR"], optionsEn:["HER2","Trop-2","PD-1","EGFR"], correct:1},
+  {type:"trivia", q:"2023年に締結した第一三共とメルクのADC提携。総額は最大いくら？", qEn:"What is the maximum total value of the 2023 ADC alliance between Daiichi Sankyo and Merck?", options:["最大50億ドル","最大100億ドル","最大220億ドル","最大500億ドル"], optionsEn:["Up to $5 billion","Up to $10 billion","Up to $22 billion","Up to $50 billion"], correct:2},
+  {type:"trivia", q:"メルクとの提携で共同開発が進む3つのADCの標的に含まれないものは？", qEn:"Which target is NOT among the 3 ADCs co-developed with Merck?", options:["HER3","B7-H3","CDH6","Trop-2"], optionsEn:["HER3","B7-H3","CDH6","Trop-2"], correct:3},
+  {type:"trivia", q:"2026年4月、大衆薬事業を担う「第一三共ヘルスケア」の売却先は？", qEn:"In April 2026, Daiichi Sankyo Healthcare (the OTC business) was sold to which company?", options:["アステラス製薬","サントリーホールディングス","小林製薬","大正製薬"], optionsEn:["Astellas Pharma","Suntory Holdings","Kobayashi Pharmaceutical","Taisho Pharmaceutical"], correct:1},
+  {type:"trivia", q:"第6期中期経営計画が掲げる、2030年度のEPS（1株当たり利益）目標は？", qEn:"What is the FY2030 EPS (earnings per share) target?", options:["180円以上","220円以上","260円以上","300円以上"], optionsEn:["¥180+","¥220+","¥260+","¥300+"], correct:2},
+  {type:"trivia", q:"第一三共がAI活用によって目指す、累計コスト削減額は？", qEn:"What cumulative cost reduction is Daiichi Sankyo targeting through AI use?", options:["500億円以上","1000億円以上","2000億円以上","3000億円以上"], optionsEn:["¥50 billion+","¥100 billion+","¥200 billion+","¥300 billion+"], correct:2},
+  {type:"trivia", q:"第一三共が、独自の創薬技術から次世代の創薬プラットフォームを特定する取り組みを何と呼ぶ？", qEn:"What does Daiichi Sankyo call its effort to identify next-generation drug discovery platforms from proprietary technologies?", options:["BGT（ブレークスルー・ジェネレーティング・テクノロジー）","DXd","3 and Alpha","Next Wave"], optionsEn:["BGT (Breakthrough Generating Technology)","DXd","3 and Alpha","Next Wave"], correct:0},
+  {type:"trivia", q:"エンハーツの後継薬開発なども見据え、東京都品川区に建設中の新研究施設。総投資額は？", qEn:"How much is Daiichi Sankyo investing in its new research facility being built in Shinagawa, Tokyo, partly aimed at developing Enhertu's successor?", options:["約300億円","約500億円","約900億円","約1500億円"], optionsEn:["About ¥30 billion","About ¥50 billion","About ¥90 billion","About ¥150 billion"], correct:2},
+  {type:"trivia", q:"第一三共がAIエージェント統合型の創薬研究基盤の構築で提携したクラウド企業は？", qEn:"Which cloud company is Daiichi Sankyo partnering with to build an AI-agent-integrated drug discovery platform?", options:["Google Cloud","Microsoft Azure","AWS（Amazon Web Services）","IBM Cloud"], optionsEn:["Google Cloud","Microsoft Azure","AWS (Amazon Web Services)","IBM Cloud"], correct:2},
+  {type:"trivia", q:"第一三共のコーポレートスローガンは？", qEn:"What is Daiichi Sankyo's corporate tagline?", options:["イノベーションに情熱を。ひとに思いやりを。","患者さんのために、世界をつなぐ。","科学の力で、明日をつくる。","健康を、すべての人に。"], optionsEn:["Passion for Innovation. Compassion for People.","For patients, connecting the world.","Building tomorrow through science.","Health for everyone."], correct:0},
+  {type:"trivia", q:"第5期中期経営計画の最終年度（2025年度）の年間配当金は、2021年度の27円からいくらに増配された？", qEn:"The annual dividend grew from ¥27 (FY2021) to how much by the end of the 5th Mid-Term Plan (FY2025)?", options:["58円","68円","78円","88円"], optionsEn:["¥58","¥68","¥78","¥88"], correct:2},
+  {type:"trivia", q:"HER2陽性胃がん2次治療の新規プロモーションを2026年1〜3月に開始した国は？", qEn:"In which countries did Daiichi Sankyo begin new promotion for HER2-positive gastric cancer 2nd-line treatment in early 2026?", options:["米国とドイツ","中国と日本","インドとブラジル","韓国とタイ"], optionsEn:["The US and Germany","China and Japan","India and Brazil","South Korea and Thailand"], correct:1},
+  {type:"trivia", q:"第6期中期経営計画で掲げる、2030年度のがん領域売上目標は？", qEn:"What is the FY2030 oncology-area revenue target under the 6th Mid-Term Plan?", options:["1兆5000億円超","2兆円超","2兆3000億円超","2兆8000億円超"], optionsEn:["Over ¥1.5 trillion","Over ¥2 trillion","Over ¥2.3 trillion","Over ¥2.8 trillion"], correct:2},
+  {type:"trivia", q:"同じリンカー・薬物技術を用いた6つのADCのうち、パートナー企業を介さず自社単独で開発中のものはいくつ？", qEn:"Of the 6 ADCs using the same linker/payload technology, how many are being developed solely by Daiichi Sankyo without a partner?", options:["0つ","1つ","2つ","3つ"], optionsEn:["0","1","2","3"], correct:1},
+  {type:"trivia", q:"主力抗がん剤エンハーツの研究が第一三共内で本格化したのは何年から？", qEn:"In what year did in-house research on Enhertu begin in earnest at Daiichi Sankyo?", options:["2005年","2010年","2015年","2019年"], optionsEn:["2005","2010","2015","2019"], correct:1},
+  {type:"trivia", q:"エンハーツの研究が本格化した当初、開発陣は何名程度だった？", qEn:"How many researchers made up the initial Enhertu R&D team?", options:["約5名","約15名","約50名","約100名"], optionsEn:["About 5","About 15","About 50","About 100"], correct:1},
+  {type:"trivia", q:"［時事ネタ］2026年ワールドカップで得点王（ゴールデンブーツ）に輝いた選手は？", qEn:"[Current events] Who won the Golden Boot as the 2026 World Cup's top scorer?", options:["リオネル・メッシ","キリアン・エムバペ","アーリング・ハーランド","ジュード・ベリンガム"], optionsEn:["Lionel Messi","Kylian Mbappé","Erling Haaland","Jude Bellingham"], correct:1},
+  {type:"trivia", q:"［時事ネタ］2026年ワールドカップの大会MVP（ゴールデンボール）を受賞したのは？", qEn:"[Current events] Who won the Golden Ball as the 2026 World Cup's best player?", options:["ロドリ","ラミン・ヤマル","リオネル・メッシ","キリアン・エムバペ"], optionsEn:["Rodri","Lamine Yamal","Lionel Messi","Kylian Mbappé"], correct:0},
+  {type:"trivia", q:"［時事ネタ］2026年大会から本大会の出場国数は何カ国に拡大した？", qEn:"[Current events] The 2026 tournament expanded to how many participating nations?", options:["32カ国","40カ国","48カ国","64カ国"], optionsEn:["32","40","48","64"], correct:2},
   {type:"opinion", q:"事業開発（BD）は、社内資産の育成よりも、積極的に外部M&Aを行うべきだ。", qEn:"Business Development should prioritize active M&A over growing internal assets.", options:["強くそう思う","ややそう思う","ややそう思わない","そう思わない"], optionsEn:["Strongly agree","Somewhat agree","Somewhat disagree","Disagree"]},
-  {type:"trivia",  q:"［サンプル問題／Excelで編集してください］当部門が今期最も注力しているテーマは？", qEn:"[Sample question — edit via Excel] What is our team's top priority this term?", options:["新規モダリティ導入","既存パイプライン強化","海外提携拡大","組織体制の見直し"], optionsEn:["New modality entry","Strengthening the pipeline","Expanding global partnerships","Restructuring the team"], correct:0},
-  {type:"member",  q:"［サンプル問題／Excelで編集してください］学生時代、体育会に所属していたのは誰？", qEn:"[Sample — edit via Excel] Who played competitive sports in school?", options:["Aさん","Bさん","Cさん","Dさん"], optionsEn:["Person A","Person B","Person C","Person D"], correct:0},
-  {type:"trivia",  q:"［サンプル問題／Excelで編集してください］第一三共のグローバル拠点として当てはまらないのは？", qEn:"[Sample — edit via Excel] Which is NOT a Daiichi Sankyo global site?", options:["米国","インド","英国","架空国"], optionsEn:["USA","India","UK","Fictionland"], correct:3},
   {type:"opinion", q:"経営陣がもっと海外案件の意思決定スピードを上げるべきだ。", qEn:"Leadership should speed up decision-making on international deals.", options:["強くそう思う","ややそう思う","ややそう思わない","そう思わない"], optionsEn:["Strongly agree","Somewhat agree","Somewhat disagree","Disagree"]},
-  {type:"member",  q:"［サンプル問題／Excelで編集してください］好きな食べ物が「辛いもの」と答えたのは誰？", qEn:"[Sample — edit via Excel] Who said their favorite food is spicy food?", options:["Aさん","Bさん","Cさん","Dさん"], optionsEn:["Person A","Person B","Person C","Person D"], correct:1},
 ];
 
 /* =========================================================================
@@ -419,7 +443,7 @@ const STR = {
   eyebrowJoin:{ja:"GLOBAL BD 屋形船 余興", en:"GLOBAL BD BOAT PARTY"},
   boardLink:{ja:"座席ボードを見る →", en:"View seat board →"},
   title:{ja:"席決め航海図", en:"Seat Voyage"},
-  joinIntro:{ja:"名前を入力し、性格診断（9問・約2分）に答えると、あなたの卓と役割が自動で決まります。", en:"Enter your name and answer 9 quick questions (~2 min). Your table and role will be assigned automatically."},
+  joinIntro:{ja:"名前を入力し、性格診断（15問・約3分）に答えると、あなたの卓と役割が自動で決まります。", en:"Enter your name and answer 15 quick questions (~3 min). Your table and role will be assigned automatically."},
   nameSelectLabel:{ja:"お名前を選択", en:"Select your name"},
   nameOther:{ja:"リストにない（自分で入力）", en:"Not on the list (type your own)"},
   namePlaceholderList:{ja:"お名前（自分で入力）", en:"Your name"},
@@ -709,16 +733,23 @@ async function reinitTablesNode(themes){
      "隠れキャラ" に回るイメージ）
    ・全卓が満員なら、その時点で一番空いている卓に入れる
    ========================================================================= */
-function normalizeScores(scores){
-  return { A: scores.A/3, B: scores.B/3, C: scores.C/3 };
+function getAxisMaxes(questions){
+  const m = { A:0, B:0, C:0 };
+  (questions||[]).forEach(q=>{ if(m[q.axis]!=null) m[q.axis]++; });
+  // 万一その軸の設問が0問の場合、ゼロ割りを避けるため1を最低値にする
+  return { A: m.A||1, B: m.B||1, C: m.C||1 };
+}
+function normalizeScores(scores, axisMaxes){
+  const m = axisMaxes || { A:3, B:3, C:3 };
+  return { A: scores.A/m.A, B: scores.B/m.B, C: scores.C/m.C };
 }
 function distanceToTheme(norm, theme){
   const dx = norm.A - theme.vec.A, dy = norm.B - theme.vec.B, dz = norm.C - theme.vec.C;
   return Math.sqrt(dx*dx + dy*dy + dz*dz);
 }
-async function assignTable(scores, themes, capacity){
+async function assignTable(scores, themes, capacity, axisMaxes){
   const counts = await getTableCounts(themes.length);
-  const norm = normalizeScores(scores);
+  const norm = normalizeScores(scores, axisMaxes);
   const ranked = themes
     .map((t,i)=>({ i, d: distanceToTheme(norm, t) }))
     .sort((a,b)=> a.d - b.d);
@@ -854,14 +885,15 @@ async function finishPersonalityQuiz(){
   app.innerHTML = `<div class="center" style="padding:60px 0;"><span class="spinner"></span><p class="muted" style="margin-top:14px;">${T('decidingTable')}</p></div>`;
   const scores = { A:0, B:0, C:0 };
   quizState.answers.forEach(a=>{ scores[a.axis]+= a.value; });
+  const axisMaxes = getAxisMaxes(quizState.questions);
   const name = sessionStorage.getItem("fnk_name");
 
   const cfg = await DB.get("event/config");
   const themes = getActiveThemes(cfg);
   const capacity = getCapacity(cfg);
-  const { tableIndex, balanced } = await assignTable(scores, themes, capacity);
+  const { tableIndex, balanced } = await assignTable(scores, themes, capacity, axisMaxes);
 
-  const participant = { name, scores, tableIndex, balanced, ts: Date.now() };
+  const participant = { name, scores, axisMaxes, tableIndex, balanced, ts: Date.now() };
   const pid = await DB.push("participants", participant);
   sessionStorage.setItem("fnk_pid", pid);
   sessionStorage.setItem("fnk_table", String(tableIndex));
@@ -896,10 +928,12 @@ async function renderResult(){
   const themes = getActiveThemes(cfg);
   const tinfo = themes[tableIndex];
   const isMeister = tableMeta && tableMeta.meisterId===pid;
+  const axisMaxes = p.axisMaxes || getAxisMaxes(quizState.questions.length ? quizState.questions : DEFAULT_PERSONALITY);
 
   function bar(axis){
     const val = p.scores[axis.id];
-    const pct = Math.round(((val+3)/6)*100);
+    const max = axisMaxes[axis.id] || 3;
+    const pct = Math.round(((val+max)/(max*2))*100);
     const label = val>=0 ? L(axis.pos,axis.posEn) : L(axis.neg,axis.negEn);
     return `
       <div class="axis-row">
