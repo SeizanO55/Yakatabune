@@ -221,6 +221,14 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
   position:fixed; top:14px; right:14px; z-index:1000;
   display:flex; align-items:center; gap:8px;
 }
+#backBtn{
+  position:fixed; top:14px; left:14px; z-index:1000;
+  background:rgba(13,36,54,.85); border:1px solid rgba(232,200,96,.4); color:var(--paper);
+  border-radius:99px; padding:8px 14px 8px 12px; font-size:13px; font-weight:700; cursor:pointer;
+  backdrop-filter:blur(4px); font-family:"Zen Kaku Gothic New",sans-serif;
+  display:flex; align-items:center; gap:4px;
+}
+#backBtn:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
 #langToggle{
   display:flex; background:rgba(13,36,54,.85); border:1px solid rgba(232,200,96,.4);
   border-radius:99px; padding:3px; backdrop-filter:blur(4px);
@@ -257,10 +265,33 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
 }
 @keyframes coinBlink{ 0%,100%{ opacity:1;} 50%{ opacity:.4;} }
 .coin-blink{ animation: coinBlink 1s steps(2) infinite; }
+
+/* ドット絵アイコンバッジ */
+.pixel-icon-badge{
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle, rgba(232,200,96,.22), rgba(21,51,74,.4) 70%);
+  border:1px solid rgba(232,200,96,.4);
+  border-radius:10px;
+  margin:0 auto;
+}
+.pixel-icon-svg{ image-rendering:pixelated; shape-rendering:crispEdges; color:var(--gold-bright); }
+.pixel-icon-svg rect{ fill:currentColor; }
+.lantern .pixel-icon-badge{ margin:0 0 6px; }
+.lantern.lantern-pulse .pixel-icon-svg{ animation: iconBounce 1.8s ease-out 2; }
+@keyframes iconBounce{ 0%,100%{ transform:translateY(0);} 30%{ transform:translateY(-4px) scale(1.15);} }
+
+/* 浮世絵風イラスト */
+.hero-art{
+  width:100%; max-width:420px; display:block; margin:0 auto 18px;
+  border-radius:14px; box-shadow:var(--shadow); border:1px solid rgba(232,200,96,.3);
+}
+.sakura-corner{ position:absolute; top:-6px; right:-6px; pointer-events:none; opacity:.9; }
+.card{ position:relative; }
 </style>
 </head>
 <body>
 
+<button id="backBtn" title="Back">← <span id="backBtnLabel">戻る</span></button>
 <div id="controlsBar">
   <div id="langToggle">
     <button id="langJa" class="active">日本語</button>
@@ -291,11 +322,41 @@ const firebaseConfig = {
   messagingSenderId: "990848433537",
   appId: "1:990848433537:web:bf7d04c71508cc4aadfc80"
 };
+/* 補足：この apiKey は「クライアントコードに埋め込まれる前提の公開値」で、
+   Firebase自体がそのように設計しています（サーバー用の秘密鍵とは別物です）。
+   実際のデータ保護は Realtime Database のセキュリティルール（期限付き）が
+   担っています。より安全にしたい場合は、Google Cloud Console の
+   「APIとサービス > 認証情報」から、この apiKey に対して
+   「HTTPリファラー制限」（自分のGitHub Pagesドメインのみ許可）を設定すること、
+   および Firebase プロジェクトが無料の Spark プラン（従量課金なし＝
+   高額請求が原理的に発生しない）のままであることを確認することを推奨します。 */
 
 /* =========================================================================
    2) 管理者パスワード / Admin passwords（複数名で共有可）
+   このファイルはGitHub Pagesなど静的サイトとして公開されるため、
+   平文でパスワードを書くとブラウザの「ページのソースを表示」で
+   誰でも読めてしまいます。そのため、パスワードそのものではなく
+   SHA-256ハッシュ値を保存し、入力値をハッシュ化してから比較しています。
+   （ソースを見ても元のパスワードは分からなくなりますが、辞書攻撃や
+   総当たりへの耐性はパスワードの強度に依存するため、他で使い回して
+   いない、ある程度推測しにくいパスワードにしてください。）
+
+   パスワードを変更・追加したい場合は、以下のいずれかの方法でSHA-256の
+   16進数ハッシュ値を計算し、下の配列に追加/置き換えてください。
+   ・ブラウザのコンソールで: 
+     crypto.subtle.digest("SHA-256", new TextEncoder().encode("新しいパスワード"))
+       .then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")))
+   ・またはこのファイルの管理者にハッシュ化を依頼してください。
    ========================================================================= */
-const ADMIN_PASSWORDS = ["funayakata2026", "kanjiA", "kanjiB"];
+const ADMIN_PASSWORD_HASHES = [
+  "98fadf7eb6b26de734cc27761301afefa0e3602e013946d1a706d27a33bf33ed", // funayakata2026
+  "e0e3a28c64bc36f718c8c16717aafc54b3ba63642ade0b5d2fd34eececef822b", // kanjiA
+  "dcc51bc5dead2edf5977c478e7769e140a4a5498b5061b4a832233f7768e90c4", // kanjiB
+];
+async function sha256Hex(text){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
 
 /* =========================================================================
    3) 卓数・定員のデフォルト値
@@ -320,65 +381,177 @@ const MAX_TABLE_COUNT = 20; // 用意しているゲームテーマの数が上�
 const GAME_THEMES = [
   { name:"スーパーマリオ", nameEn:"Super Mario", kana:"スーパーマリオ組",
     descJa:"前向きで頼れる、みんなを引っ張る冒険家タイプ。", descEn:"Bold, upbeat, and always ready to lead the adventure.",
-    vec:{A:0.6,B:-0.2,C:0.7} },
+    vec:{A:0.6,B:-0.2,C:0.7}, icon:"star" },
   { name:"テトリス", nameEn:"Tetris", kana:"テトリス組",
     descJa:"冷静沈着、パズルを組み立てるように物事を考える知将タイプ。", descEn:"Calm and methodical — the strategist who plans every move.",
-    vec:{A:-0.4,B:0.9,C:-0.2} },
+    vec:{A:-0.4,B:0.9,C:-0.2}, icon:"block" },
   { name:"ファイナルファンタジー", nameEn:"Final Fantasy", kana:"ファイナルファンタジー組",
     descJa:"じっくり戦略を練り、仲間を導く知将リーダータイプ。", descEn:"A thoughtful strategist who plans carefully and leads the party.",
-    vec:{A:-0.3,B:0.7,C:0.3} },
+    vec:{A:-0.3,B:0.7,C:0.3}, icon:"sword" },
   { name:"ストリートファイター", nameEn:"Street Fighter", kana:"ストリートファイター組",
     descJa:"直感と勢いで押し切る、闘志あふれる武闘派タイプ。", descEn:"Bold instincts and fighting spirit — leads with momentum.",
-    vec:{A:0.9,B:-0.4,C:0.6} },
+    vec:{A:0.9,B:-0.4,C:0.6}, icon:"fist" },
   { name:"ソニック・ザ・ヘッジホッグ", nameEn:"Sonic the Hedgehog", kana:"ソニック組",
     descJa:"スピード重視、勢いのまま楽しく突き進むタイプ。", descEn:"Fast, fun, and instinctive — full speed ahead.",
-    vec:{A:0.8,B:-0.3,C:-0.5} },
+    vec:{A:0.8,B:-0.3,C:-0.5}, icon:"lightning" },
   { name:"マインクラフト", nameEn:"Minecraft", kana:"マインクラフト組",
     descJa:"コツコツ積み上げる、創造力豊かな建築家タイプ。", descEn:"Patient and creative — builds something great, one block at a time.",
-    vec:{A:-0.2,B:0.5,C:0.4} },
+    vec:{A:-0.2,B:0.5,C:0.4}, icon:"pickaxe" },
   { name:"ドラゴンクエスト", nameEn:"Dragon Quest", kana:"ドラゴンクエスト組",
     descJa:"仲間と着実に冒険を進める、堅実な戦略家タイプ。", descEn:"Steady and methodical — advances the party one careful step at a time.",
-    vec:{A:-0.4,B:0.6,C:-0.1} },
+    vec:{A:-0.4,B:0.6,C:-0.1}, icon:"shield" },
   { name:"パックマン", nameEn:"Pac-Man", kana:"パックマン組",
     descJa:"コツコツ堅実、周りと歩調を合わせるタイプ。", descEn:"Steady and careful, gathering points one at a time.",
-    vec:{A:-0.5,B:0.4,C:-0.3} },
+    vec:{A:-0.5,B:0.4,C:-0.3}, icon:"ghost" },
   { name:"ポケモン", nameEn:"Pokémon", kana:"ポケモン組",
     descJa:"相性を見極めてじっくり戦略を練る、コレクター＆知将タイプ。", descEn:"A strategic collector who studies the matchups before making a move.",
-    vec:{A:0.1,B:0.6,C:0.2} },
+    vec:{A:0.1,B:0.6,C:0.2}, icon:"gem" },
   { name:"ドンキーコング", nameEn:"Donkey Kong", kana:"ドンキーコング組",
     descJa:"パワフルで頼りがいのある、力強いタイプ。", descEn:"Powerful and instinctive, with natural leadership muscle.",
-    vec:{A:0.6,B:-0.6,C:0.3} },
+    vec:{A:0.6,B:-0.6,C:0.3}, icon:"barrel" },
   { name:"スペースインベーダー", nameEn:"Space Invaders", kana:"スペースインベーダー組",
     descJa:"守りを固め、冷静に状況を見極める司令官タイプ。", descEn:"Careful and logical — commands the defense with a cool head.",
-    vec:{A:-0.6,B:0.6,C:0.3} },
+    vec:{A:-0.6,B:0.6,C:0.3}, icon:"ufo" },
   { name:"鉄拳", nameEn:"Tekken", kana:"鉄拳組",
     descJa:"一撃必殺、直感を信じて突き進むタイプ。", descEn:"Bold and instinctive, trusting the gut over the plan.",
-    vec:{A:0.7,B:-0.5,C:-0.1} },
+    vec:{A:0.7,B:-0.5,C:-0.1}, icon:"fist" },
   { name:"モータルコンバット", nameEn:"Mortal Kombat", kana:"モータルコンバット組",
     descJa:"技を読み、確実に決めにいく戦略派タイプ。", descEn:"Bold but calculated — studies the moves before finishing strong.",
-    vec:{A:0.8,B:0.3,C:0.5} },
+    vec:{A:0.8,B:0.3,C:0.5}, icon:"fist" },
   { name:"フロッガー", nameEn:"Frogger", kana:"フロッガー組",
     descJa:"タイミングを見極める、慎重派のマイペースタイプ。", descEn:"Careful and instinctive, timing every move just right.",
-    vec:{A:-0.5,B:-0.3,C:-0.4} },
+    vec:{A:-0.5,B:-0.3,C:-0.4}, icon:"shield" },
   { name:"ギャラガ", nameEn:"Galaga", kana:"ギャラガ組",
     descJa:"集中力抜群、精密に狙いを定めるタイプ。", descEn:"Focused and precise, quietly locking onto the target.",
-    vec:{A:-0.2,B:0.7,C:-0.2} },
+    vec:{A:-0.2,B:0.7,C:-0.2}, icon:"ufo" },
   { name:"ゼルダの伝説", nameEn:"The Legend of Zelda", kana:"ゼルダ組",
     descJa:"知恵と勇気を併せ持つ、頼れる冒険リーダー。", descEn:"Wise and courageous — a thoughtful leader on every quest.",
-    vec:{A:0.3,B:0.5,C:0.6} },
+    vec:{A:0.3,B:0.5,C:0.6}, icon:"shield" },
   { name:"ボンバーマン", nameEn:"Bomberman", kana:"ボンバーマン組",
     descJa:"仕掛け上手、場を盛り上げる戦略リーダー。", descEn:"A playful strategist who loves stirring things up — in a good way.",
-    vec:{A:0.4,B:0.4,C:0.5} },
+    vec:{A:0.4,B:0.4,C:0.5}, icon:"bomb" },
   { name:"パズルボブル", nameEn:"Puzzle Bobble", kana:"パズルボブル組",
     descJa:"周りとの連携を大事にする、和やかな協調タイプ。", descEn:"Careful and easygoing — always thinking of the team's rhythm.",
-    vec:{A:-0.4,B:0.2,C:-0.6} },
+    vec:{A:-0.4,B:0.2,C:-0.6}, icon:"gem" },
   { name:"アウトラン", nameEn:"OutRun", kana:"アウトラン組",
     descJa:"自由奔放、気の向くままに楽しむタイプ。", descEn:"Free-spirited and instinctive — enjoys the ride, wherever it goes.",
-    vec:{A:0.7,B:-0.7,C:-0.3} },
+    vec:{A:0.7,B:-0.7,C:-0.3}, icon:"lightning" },
   { name:"パックマン２世", nameEn:"Q*bert", kana:"キュバート組",
     descJa:"独自の視点でコツコツ進む、ユニークな職人タイプ。", descEn:"Quietly methodical, hopping to the beat of its own drum.",
-    vec:{A:-0.3,B:0.6,C:0.1} },
+    vec:{A:-0.3,B:0.6,C:0.1}, icon:"block" },
 ];
+
+/* =========================================================================
+   オリジナルのドット絵アイコン（8x8グリッド）
+   特定のゲームキャラクターを模写せず、剣・盾・UFOなど汎用的なモチーフを
+   ジャンルのイメージに合わせて各テーマに割り当てています。著作権の
+   心配なく「レトロゲームらしさ」を視覚的に演出するための独自素材です。
+   ========================================================================= */
+const PIXEL_ICONS = {
+  star:      ["...XX...",".XXXXXX.","XXXXXXXX",".XXXXXX.","..XXXX..",".X....X.","X......X","........"],
+  block:     ["........","..XXXX..","..X..X..","..X..X..","..XXXX..","XXXX....","X..X....","XXXX...."],
+  sword:     ["...XX...","...XX...","...XX...","...XX...",".XXXXXX.","...XX...","...XX...","..XXXX.."],
+  shield:    [".XXXXXX.","XXXXXXXX","XXXXXXXX","XXXXXXXX",".XXXXXX.","..XXXX..","...XX...","...XX..."],
+  ghost:     ["..XXXX..",".XXXXXX.","XXXXXXXX","XXXXXXXX","XXXXXXXX","XXXXXXXX","X.X.X.X.","X.X.X.X."],
+  gem:       ["...XX...","..XXXX..",".XXXXXX.","XXXXXXXX",".XXXXXX.","..XXXX..","...XX...","........"],
+  fist:      ["........","..X..X..",".XXXXXX.","XXXXXXXX","XXXXXXXX","XXXXXXXX","..XXXX..","..XXXX.."],
+  ufo:       ["........","...XX...","..XXXX..",".XXXXXX.","XXXXXXXX","X.X..X.X","........","........"],
+  barrel:    [".XXXXXX.","X.XXXX.X","XXXXXXXX","X.XXXX.X","XXXXXXXX","X.XXXX.X","XXXXXXXX",".XXXXXX."],
+  bomb:      ["....XX..","...X....","..XXXX..",".XXXXXX.","XXXXXXXX","XXXXXXXX","XXXXXXXX",".XXXXXX."],
+  lightning: ["....XX..","...XX...","..XX....",".XXXXXX.","..XX....","...XX...","..XX....",".XX....."],
+  pickaxe:   ["XX......","XXX.....",".XXX....","..XXX...","...XXX..","....XXX.","..XXX...","..XXX..."],
+};
+function pixelIconSVG(key, sizePx){
+  const grid = PIXEL_ICONS[key] || PIXEL_ICONS.star;
+  const n = grid.length;
+  let rects = "";
+  grid.forEach((row,y)=>{
+    for(let x=0;x<row.length;x++){
+      if(row[x]==="X"){ rects += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }
+    }
+  });
+  return `<svg viewBox="0 0 ${n} ${n}" width="${sizePx||32}" height="${sizePx||32}" class="pixel-icon-svg" preserveAspectRatio="xMidYMid meet">${rects}</svg>`;
+}
+function themeIconBadge(theme, sizePx){
+  return `<div class="pixel-icon-badge" style="width:${(sizePx||32)+16}px;height:${(sizePx||32)+16}px;">${pixelIconSVG(theme.icon, sizePx)}</div>`;
+}
+
+/* =========================================================================
+   浮世絵風オリジナルイラスト（雷門・屋形船・桜）
+   実在する浮世絵作品の複製ではなく、その画風にインスパイアされた
+   完全オリジナルの装飾イラストです。
+   ========================================================================= */
+const HERO_ASAKUSA_SVG = `
+<svg viewBox="0 0 400 240" class="hero-art" preserveAspectRatio="xMidYMid meet">
+  <defs><linearGradient id="skyAsakusa" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1f4a63"/><stop offset="60%" stop-color="#3a6b74"/><stop offset="100%" stop-color="#c9a227"/>
+  </linearGradient></defs>
+  <rect width="400" height="240" fill="url(#skyAsakusa)"/>
+  <circle cx="200" cy="78" r="46" fill="#e8c860" opacity="0.9"/>
+  <g fill="#0d2436" opacity="0.75">
+    <polygon points="40,190 60,190 60,160 70,160 50,140 30,160 40,160"/>
+    <polygon points="330,190 355,190 355,155 365,155 342.5,130 320,155 330,155"/>
+  </g>
+  <g fill="#0d2436">
+    <rect x="90" y="90" width="18" height="120"/>
+    <rect x="292" y="90" width="18" height="120"/>
+    <polygon points="70,95 330,95 350,70 260,55 140,55 50,70"/>
+    <polygon points="70,95 330,95 320,110 80,110"/>
+  </g>
+  <ellipse cx="200" cy="150" rx="42" ry="55" fill="#c1442e" stroke="#e8c860" stroke-width="3"/>
+  <line x1="200" y1="95" x2="200" y2="98" stroke="#e8c860" stroke-width="3"/>
+  <g stroke="#8a2c1c" stroke-width="1.5" opacity="0.6">
+    <line x1="165" y1="115" x2="235" y2="115"/><line x1="160" y1="150" x2="240" y2="150"/><line x1="165" y1="185" x2="235" y2="185"/>
+  </g>
+  <text x="200" y="157" font-size="20" fill="#e8c860" text-anchor="middle" font-family="serif">雷門</text>
+  <g transform="translate(240,193)">
+    <circle cx="0" cy="-18" r="6" fill="#0d2436"/>
+    <path d="M -10 -10 Q 0 -14 10 -10 L 14 12 Q 0 18 -14 12 Z" fill="#c1442e"/>
+    <line x1="0" y1="-6" x2="0" y2="12" stroke="#e8c860" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#f3ecdb" stroke-width="2" opacity="0.5">
+    <path d="M0,225 Q20,215 40,225 T80,225 T120,225 T160,225 T200,225 T240,225 T280,225 T320,225 T360,225 T400,225"/>
+  </g>
+</svg>`;
+
+const HERO_YAKATABUNE_SVG = `
+<svg viewBox="0 0 400 240" class="hero-art" preserveAspectRatio="xMidYMid meet">
+  <defs><linearGradient id="skyBoat" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#15334a"/><stop offset="55%" stop-color="#2f6f6b"/><stop offset="100%" stop-color="#c9a227"/>
+  </linearGradient></defs>
+  <rect width="400" height="240" fill="url(#skyBoat)"/>
+  <polygon points="140,150 230,150 200,60 170,60" fill="#1f4a63"/>
+  <polygon points="185,80 200,60 215,80 205,80 205,90 195,90 195,80" fill="#f3ecdb" opacity="0.85"/>
+  <g stroke="#0d2436" stroke-width="2" fill="none" opacity="0.6">
+    <path d="M40,50 q6,-8 12,0 q6,-8 12,0"/><path d="M70,35 q5,-7 10,0 q5,-7 10,0"/>
+  </g>
+  <g fill="#0d2436" opacity="0.22"><path d="M0,190 Q40,180 80,190 T160,190 T240,190 T320,190 T400,190 V240 H0 Z"/></g>
+  <g fill="#0d2436" opacity="0.38"><path d="M0,205 Q40,195 80,205 T160,205 T240,205 T320,205 T400,205 V240 H0 Z"/></g>
+  <path d="M90,205 Q200,230 310,205 L295,190 L105,190 Z" fill="#c1442e"/>
+  <rect x="140" y="150" width="120" height="42" fill="#e8c860"/>
+  <polygon points="130,150 270,150 250,130 150,130" fill="#0d2436"/>
+  <rect x="155" y="160" width="18" height="18" fill="#15334a"/>
+  <rect x="191" y="160" width="18" height="18" fill="#15334a"/>
+  <rect x="227" y="160" width="18" height="18" fill="#15334a"/>
+  <g><ellipse cx="150" cy="140" rx="6" ry="9" fill="#c1442e"/><ellipse cx="200" cy="136" rx="6" ry="9" fill="#c1442e"/><ellipse cx="250" cy="140" rx="6" ry="9" fill="#c1442e"/></g>
+</svg>`;
+
+function sakuraBranchSVG(sizePx){
+  const s = sizePx || 100;
+  const petal = (cx,cy,scale)=>`
+    <g transform="translate(${cx},${cy}) scale(${scale})" fill="#e8b6c4">
+      <ellipse cx="0" cy="-5" rx="3" ry="4.2"/>
+      <ellipse cx="0" cy="-5" rx="3" ry="4.2" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-5" rx="3" ry="4.2" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-5" rx="3" ry="4.2" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-5" rx="3" ry="4.2" transform="rotate(288)"/>
+      <circle r="1.6" fill="#e8c860"/>
+    </g>`;
+  return `<svg viewBox="0 0 120 80" width="${s}" height="${s*0.667}" class="sakura-svg">
+    <path d="M10,70 Q40,40 60,45 Q80,30 100,10" stroke="#8a6a4a" stroke-width="2" fill="none"/>
+    ${petal(20,55,1)}${petal(45,35,0.8)}${petal(65,42,1.1)}${petal(90,20,0.9)}
+  </svg>`;
+}
 
 const AXES = [
   { id:"A", pos:"攻め", neg:"守り", posEn:"Bold", negEn:"Careful" },
@@ -559,10 +732,17 @@ function applyLangButtons(){
   document.getElementById("langJa").classList.toggle("active", LANG==="ja");
   document.getElementById("langEn").classList.toggle("active", LANG==="en");
   document.documentElement.lang = LANG;
+  const backLabel = document.getElementById("backBtnLabel");
+  if(backLabel) backLabel.textContent = LANG==="en" ? "Back" : "戻る";
 }
 document.getElementById("langJa").addEventListener("click", ()=>{ LANG="ja"; sessionStorage.setItem("fnk_lang","ja"); applyLangButtons(); route(); });
 document.getElementById("langEn").addEventListener("click", ()=>{ LANG="en"; sessionStorage.setItem("fnk_lang","en"); applyLangButtons(); route(); });
 applyLangButtons();
+
+/* 全画面共通の「戻る」ボタン：ブラウザの履歴を1つ戻る。
+   このアプリはハッシュ遷移のたびに履歴が積まれるため、通常のページ内
+   移動であればどの画面からでも正しく1つ前の画面に戻れる。 */
+document.getElementById("backBtn").addEventListener("click", ()=>{ history.back(); });
 
 /* =========================================================================
    オリジナル8bit風効果音（Web Audio APIでその場で生成。特定楽曲の複製ではありません）
@@ -805,6 +985,7 @@ async function renderJoin(){
         <a class="small-link" href="#/board">${T('boardLink')}</a>
       </div>
     </div>
+    ${HERO_ASAKUSA_SVG}
     <h1 class="disp" style="font-size:30px; margin:6px 0 4px;">${T('title')}</h1>
     <p class="muted">${T('joinIntro')}</p>
     <div class="card">
@@ -947,7 +1128,8 @@ async function renderResult(){
     <div class="eyebrow">${T('resultEyebrow')}</div>
     <h1 class="disp" style="font-size:26px; margin:6px 0 2px;">${esc(p.name)}${T('tableDecided')}</h1>
     <p class="muted">${T('tableDecidedSub')}</p>
-    <div class="card">
+    <div class="card" style="text-align:center;">
+      ${themeIconBadge(tinfo, 48)}
       <div class="pill" style="font-size:14px;">${esc(tinfo.kana)} / ${esc(tinfo.nameEn)}</div>
       <h2 class="disp" style="font-size:28px; margin:10px 0 4px; color:var(--gold-bright);">${esc(L(tinfo.name, tinfo.nameEn))}</h2>
       <p class="muted" style="margin-bottom:14px;">${esc(L(tinfo.descJa, tinfo.descEn))}</p>
@@ -1020,6 +1202,7 @@ async function renderBoard(){
       return `
         <div class="lantern ${justJoined?'lantern-pulse':''} ${justChanged?'lantern-flash':''}">
           <div class="count">${members.length}${T('peopleCount')}</div>
+          ${themeIconBadge(t, 26)}
           <h3>${esc(L(t.name,t.nameEn))}</h3>
           <div class="concept-en">${esc(LANG==='en' ? t.kana : t.nameEn)}</div>
           <div class="concept">${esc(L(t.descJa,t.descEn))}</div>
@@ -1078,8 +1261,9 @@ async function renderTable(){
   const themes = getActiveThemes(cfgEarly);
   const tinfo = themes[tableIndex];
   app.innerHTML = `
-    <div class="eyebrow">${esc(LANG==='en'?tinfo.nameEn:tinfo.kana)}</div>
-    <h1 class="disp" style="font-size:26px; margin:6px 0 16px;">${esc(L(tinfo.name,tinfo.nameEn))}</h1>
+    ${themeIconBadge(tinfo, 34)}
+    <div class="eyebrow" style="text-align:center;">${esc(LANG==='en'?tinfo.nameEn:tinfo.kana)}</div>
+    <h1 class="disp" style="font-size:26px; margin:6px 0 16px; text-align:center;">${esc(L(tinfo.name,tinfo.nameEn))}</h1>
     <div id="tableContent"><div class="center"><span class="spinner"></span></div></div>
   `;
   const contentEl = document.getElementById("tableContent");
@@ -1170,6 +1354,7 @@ async function renderRules(){
       <div class="eyebrow">${T('rulesEyebrow')}</div>
       <a class="small-link" href="#/board">${T('boardLink')}</a>
     </div>
+    ${HERO_YAKATABUNE_SVG}
     <div class="hero-title">
       <span class="retro-badge"><span class="coin-blink">🪙</span> PLAYER VS PLAYER</span>
       <h1 class="disp" style="margin-top:10px;">${T('rulesTitle')}</h1>
@@ -1232,7 +1417,9 @@ async function renderRanking(){
       </div>
       ${rows.length ? `
         <div class="card pixel-frame" style="text-align:center; margin:16px 4px 20px;">
+          <div class="sakura-corner">${sakuraBranchSVG(90)}</div>
           <p class="muted" style="font-size:13px;"><span class="pixel-sparkle">✨</span> ${T('rankingWinnerLabel')} <span class="pixel-sparkle">✨</span></p>
+          ${themeIconBadge(rows[0].t, 44)}
           <h2 class="disp" style="font-size:30px; color:var(--gold-bright); margin:6px 0;">${esc(L(rows[0].t.name, rows[0].t.nameEn))}</h2>
           <p style="font-weight:800; font-size:20px;">${T('rankingCongrats')}</p>
         </div>
@@ -1241,6 +1428,7 @@ async function renderRanking(){
         ${rows.map((r,idx)=>`
           <div class="rank-row ${idx===0?'first':''}" style="animation-delay:${idx*0.12}s;">
             <div class="rank-medal">${medals[idx] || (idx+1)}</div>
+            ${pixelIconSVG(r.t.icon, 22)}
             <div class="rank-name">${esc(L(r.t.name,r.t.nameEn))}</div>
             <div class="rank-score">${r.score}${T('ptsLabel')}</div>
           </div>
@@ -1268,9 +1456,10 @@ async function renderAdmin(){
         <button class="btn" id="loginBtn" style="width:100%;">${T('loginBtn')}</button>
       </div>
     `;
-    document.getElementById("loginBtn").addEventListener("click", ()=>{
+    document.getElementById("loginBtn").addEventListener("click", async ()=>{
       const pw = document.getElementById("pw").value;
-      if(ADMIN_PASSWORDS.includes(pw)){
+      const hash = await sha256Hex(pw);
+      if(ADMIN_PASSWORD_HASHES.includes(hash)){
         sessionStorage.setItem("fnk_admin","1");
         renderAdmin();
       } else {
@@ -1378,6 +1567,7 @@ async function renderAdmin(){
       const td = tables[i] || {};
       return `
         <div class="lantern" style="min-height:auto;">
+          ${themeIconBadge(t, 22)}
           <h3 style="font-size:16px;">${esc(L(t.name,t.nameEn))}</h3>
           <div class="concept">${T('scoreLabel')}${td.score||0}${T('ptsLabel')}</div>
           <button class="btn ${td.quizStarted?'secondary':''}" data-start-i="${i}" style="width:100%; margin-top:8px; font-size:13px; padding:10px;">
