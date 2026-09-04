@@ -9,7 +9,7 @@
      確実に表示したい場合は https://you.github.io/... のような絶対URLに書き換えてください。 -->
 <meta property="og:title" content="屋形船 席決め航海図 / Seat Voyage">
 <meta property="og:description" content="性格診断で、最高の出会いと役割が見つかる航海へ。">
-<meta property="og:image" content="assets/cover-social.webp">
+<meta property="og:image" content="cover-social.webp">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -415,47 +415,47 @@ const MAX_TABLE_COUNT = 20; // 用意しているゲームテーマの数が上�
    このゲームの「性格ベクトル」（-1〜+1）。診断結果に一番近いテーマに
    自動で振り分けられます（卓数を絞ると、上から順にその数だけ使われます）。
 
-   img: 卓のビジュアル用イラスト（assets/ 配下、HTMLファイルと同じ階層に
-   置く想定）。デフォルト12卓ぶんのみ用意。未設定のテーマは自動的に
+   img: 卓のビジュアル用イラスト（HTMLファイルと同じ階層に置く想定）。
+   デフォルト12卓ぶんのみ用意。未設定のテーマは自動的に
    従来のドット絵アイコン＋グラデーション背景にフォールバックします。
    ========================================================================= */
 const GAME_THEMES = [
   { name:"スーパーマリオ", nameEn:"Super Mario", kana:"スーパーマリオ組",
     descJa:"前向きで頼れる、みんなを引っ張る冒険家タイプ。", descEn:"Bold, upbeat, and always ready to lead the adventure.",
-    vec:{A:0.6,B:-0.2,C:0.7}, icon:"star", img:"assets/mario.webp" },
+    vec:{A:0.6,B:-0.2,C:0.7}, icon:"star", img:"mario.webp" },
   { name:"テトリス", nameEn:"Tetris", kana:"テトリス組",
     descJa:"冷静沈着、パズルを組み立てるように物事を考える知将タイプ。", descEn:"Calm and methodical — the strategist who plans every move.",
-    vec:{A:-0.4,B:0.9,C:-0.2}, icon:"block", img:"assets/tetris.webp" },
+    vec:{A:-0.4,B:0.9,C:-0.2}, icon:"block", img:"tetris.webp" },
   { name:"ファイナルファンタジー", nameEn:"Final Fantasy", kana:"ファイナルファンタジー組",
     descJa:"じっくり戦略を練り、仲間を導く知将リーダータイプ。", descEn:"A thoughtful strategist who plans carefully and leads the party.",
-    vec:{A:-0.3,B:0.7,C:0.3}, icon:"sword", img:"assets/ff.webp" },
+    vec:{A:-0.3,B:0.7,C:0.3}, icon:"sword", img:"ff.webp" },
   { name:"ストリートファイター", nameEn:"Street Fighter", kana:"ストリートファイター組",
     descJa:"直感と勢いで押し切る、闘志あふれる武闘派タイプ。", descEn:"Bold instincts and fighting spirit — leads with momentum.",
-    vec:{A:0.9,B:-0.4,C:0.6}, icon:"fist", img:"assets/streetfighter.webp" },
+    vec:{A:0.9,B:-0.4,C:0.6}, icon:"fist", img:"streetfighter.webp" },
   { name:"ソニック・ザ・ヘッジホッグ", nameEn:"Sonic the Hedgehog", kana:"ソニック組",
     descJa:"スピード重視、勢いのまま楽しく突き進むタイプ。", descEn:"Fast, fun, and instinctive — full speed ahead.",
-    vec:{A:0.8,B:-0.3,C:-0.5}, icon:"lightning", img:"assets/sonic.webp" },
+    vec:{A:0.8,B:-0.3,C:-0.5}, icon:"lightning", img:"sonic.webp" },
   { name:"マインクラフト", nameEn:"Minecraft", kana:"マインクラフト組",
     descJa:"コツコツ積み上げる、創造力豊かな建築家タイプ。", descEn:"Patient and creative — builds something great, one block at a time.",
-    vec:{A:-0.2,B:0.5,C:0.4}, icon:"pickaxe", img:"assets/minecraft.webp" },
+    vec:{A:-0.2,B:0.5,C:0.4}, icon:"pickaxe", img:"minecraft.webp" },
   { name:"ドラゴンクエスト", nameEn:"Dragon Quest", kana:"ドラゴンクエスト組",
     descJa:"仲間と着実に冒険を進める、堅実な戦略家タイプ。", descEn:"Steady and methodical — advances the party one careful step at a time.",
-    vec:{A:-0.4,B:0.6,C:-0.1}, icon:"shield", img:"assets/dragonquest.webp" },
+    vec:{A:-0.4,B:0.6,C:-0.1}, icon:"shield", img:"dragonquest.webp" },
   { name:"パックマン", nameEn:"Pac-Man", kana:"パックマン組",
     descJa:"コツコツ堅実、周りと歩調を合わせるタイプ。", descEn:"Steady and careful, gathering points one at a time.",
-    vec:{A:-0.5,B:0.4,C:-0.3}, icon:"ghost", img:"assets/pacman.webp" },
+    vec:{A:-0.5,B:0.4,C:-0.3}, icon:"ghost", img:"pacman.webp" },
   { name:"ポケモン", nameEn:"Pokémon", kana:"ポケモン組",
     descJa:"相性を見極めてじっくり戦略を練る、コレクター＆知将タイプ。", descEn:"A strategic collector who studies the matchups before making a move.",
-    vec:{A:0.1,B:0.6,C:0.2}, icon:"gem", img:"assets/pokemon.webp" },
+    vec:{A:0.1,B:0.6,C:0.2}, icon:"gem", img:"pokemon.webp" },
   { name:"ドンキーコング", nameEn:"Donkey Kong", kana:"ドンキーコング組",
     descJa:"パワフルで頼りがいのある、力強いタイプ。", descEn:"Powerful and instinctive, with natural leadership muscle.",
-    vec:{A:0.6,B:-0.6,C:0.3}, icon:"barrel", img:"assets/donkeykong.webp" },
+    vec:{A:0.6,B:-0.6,C:0.3}, icon:"barrel", img:"donkeykong.webp" },
   { name:"スペースインベーダー", nameEn:"Space Invaders", kana:"スペースインベーダー組",
     descJa:"守りを固め、冷静に状況を見極める司令官タイプ。", descEn:"Careful and logical — commands the defense with a cool head.",
-    vec:{A:-0.6,B:0.6,C:0.3}, icon:"ufo", img:"assets/spaceinvaders.webp" },
+    vec:{A:-0.6,B:0.6,C:0.3}, icon:"ufo", img:"spaceinvaders.webp" },
   { name:"鉄拳", nameEn:"Tekken", kana:"鉄拳組",
     descJa:"一撃必殺、直感を信じて突き進むタイプ。", descEn:"Bold and instinctive, trusting the gut over the plan.",
-    vec:{A:0.7,B:-0.5,C:-0.1}, icon:"fist", img:"assets/tekken.webp" },
+    vec:{A:0.7,B:-0.5,C:-0.1}, icon:"fist", img:"tekken.webp" },
   { name:"モータルコンバット", nameEn:"Mortal Kombat", kana:"モータルコンバット組",
     descJa:"技を読み、確実に決めにいく戦略派タイプ。", descEn:"Bold but calculated — studies the moves before finishing strong.",
     vec:{A:0.8,B:0.3,C:0.5}, icon:"fist" },
@@ -534,7 +534,7 @@ function themeHeroImg(theme, cls){
 
 /* =========================================================================
    浮世絵風オリジナルイラスト（雷門・屋形船・桜）
-   ※ HERO_ASAKUSA_SVG / HERO_YAKATABUNE_SVG は、表紙イラスト（assets/cover-bg.webp）
+   ※ HERO_ASAKUSA_SVG / HERO_YAKATABUNE_SVG は、表紙イラスト（cover-bg.webp）
    導入に伴い現在は未使用です。assets 画像が読み込めない環境向けの手動フォール
    バックとして残してあります（使う場合は該当箇所の <img class="hero-cover" ...>
    をこれらの定数呼び出しに戻してください）。
@@ -1045,7 +1045,7 @@ async function renderJoin(){
         <a class="small-link" href="#/board">${T('boardLink')}</a>
       </div>
     </div>
-    <img class="hero-cover" src="assets/cover-bg.webp" alt="${esc(T('title'))}">
+    <img class="hero-cover" src="cover-bg.webp" alt="${esc(T('title'))}">
     <h1 class="disp" style="font-size:30px; margin:6px 0 4px;">${T('title')}</h1>
     <p class="muted">${T('joinIntro')}</p>
     <div class="card">
@@ -1415,7 +1415,7 @@ async function renderRules(){
       <div class="eyebrow">${T('rulesEyebrow')}</div>
       <a class="small-link" href="#/board">${T('boardLink')}</a>
     </div>
-    <img class="hero-cover" src="assets/cover-bg.webp" alt="${esc(T('rulesTitle'))}">
+    <img class="hero-cover" src="cover-bg.webp" alt="${esc(T('rulesTitle'))}">
     <div class="hero-title">
       <span class="retro-badge"><span class="coin-blink">🪙</span> PLAYER VS PLAYER</span>
       <h1 class="disp" style="margin-top:10px;">${T('rulesTitle')}</h1>
