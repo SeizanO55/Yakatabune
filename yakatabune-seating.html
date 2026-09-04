@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>屋形船 席決め航海図 / Seat Voyage</title>
+<meta name="description" content="性格診断で最適な卓と役割が決まる、屋形船パーティー用の航海図アプリ。">
+<!-- SNSでリンクを共有した際のプレビュー画像。相対パスのままでも動きますが、
+     確実に表示したい場合は https://you.github.io/... のような絶対URLに書き換えてください。 -->
+<meta property="og:title" content="屋形船 席決め航海図 / Seat Voyage">
+<meta property="og:description" content="性格診断で、最高の出会いと役割が見つかる航海へ。">
+<meta property="og:image" content="assets/cover-social.webp">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -139,6 +146,14 @@ a{color:var(--gold-bright);}
 .lantern .members .m.meister{background:var(--vermillion); color:#fff; font-weight:700;}
 .lantern .count{position:absolute; top:12px; right:14px; font-size:12px; color:rgba(243,236,219,.5);}
 
+/* 卓イラスト背景つきの lantern カード（結果・座席ボード・管理画面で共通） */
+.lantern.has-img{ background-color:var(--navy); }
+.lantern.has-img h3{ color:var(--gold-bright); text-shadow:0 1px 6px rgba(0,0,0,.85); }
+.lantern.has-img .concept,
+.lantern.has-img .concept-en{ color:rgba(243,236,219,.85); text-shadow:0 1px 5px rgba(0,0,0,.85); }
+.lantern.has-img .members .m{ background:rgba(13,36,54,.62); backdrop-filter:blur(2px); }
+.lantern.has-img .count{ background:rgba(13,36,54,.55); padding:2px 8px; border-radius:99px; backdrop-filter:blur(2px); }
+
 .axis-row{margin-bottom:16px;}
 .axis-label{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:rgba(243,236,219,.75);}
 .axis-bar{height:10px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; position:relative;}
@@ -208,6 +223,7 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
 .rank-row.first{ border-color:var(--gold-bright); background:linear-gradient(90deg, rgba(232,200,96,.25), rgba(255,255,255,.03)); box-shadow:0 0 30px rgba(232,200,96,.25); }
 @keyframes rankIn{ from{ opacity:0; transform:translateX(-16px);} to{ opacity:1; transform:translateX(0);} }
 .rank-medal{ font-size:26px; width:42px; text-align:center; flex-shrink:0; }
+.rank-thumb{ width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid rgba(232,200,96,.45); }
 .rank-name{ flex:1; font-size:17px; font-weight:700; }
 .rank-score{ font-size:20px; font-weight:800; color:var(--gold-bright); }
 .hero-title{ text-align:center; padding:20px 0; }
@@ -287,6 +303,27 @@ hr.divider{border:none; border-top:1px dashed rgba(243,236,219,.2); margin:18px 
 }
 .sakura-corner{ position:absolute; top:-6px; right:-6px; pointer-events:none; opacity:.9; }
 .card{ position:relative; }
+
+/* 表紙イラスト（参加・ルール画面のカバー写真） */
+.hero-cover{
+  width:100%; aspect-ratio:3/2; display:block; margin:0 auto 18px;
+  border-radius:16px; box-shadow:var(--shadow); border:1px solid rgba(232,200,96,.3);
+  object-fit:cover; object-position:center center;
+}
+
+/* 診断結果・ランキング発表：卓イラストの大きなリビール画像 */
+.reveal-img{
+  width:100%; aspect-ratio:3/2; object-fit:cover; object-position:center 40%;
+  border-radius:14px; display:block; margin:0 auto 14px;
+  border:1px solid rgba(232,200,96,.35); box-shadow:0 0 30px rgba(232,200,96,.18), var(--shadow);
+  animation: revealIn .6s ease-out backwards;
+}
+@keyframes revealIn{ from{ opacity:0; transform:scale(.96);} to{ opacity:1; transform:scale(1);} }
+.winner-img{
+  width:100%; aspect-ratio:3/2; object-fit:cover; object-position:center 40%;
+  border-radius:10px; display:block; margin:0 auto 12px;
+  border:1px solid rgba(232,200,96,.4); box-shadow:0 0 34px rgba(232,200,96,.3);
+}
 </style>
 </head>
 <body>
@@ -377,44 +414,48 @@ const MAX_TABLE_COUNT = 20; // 用意しているゲームテーマの数が上�
    vec: 性格診断3軸（A=攻め/守り, B=論理/感覚, C=リーダー/ムード）における
    このゲームの「性格ベクトル」（-1〜+1）。診断結果に一番近いテーマに
    自動で振り分けられます（卓数を絞ると、上から順にその数だけ使われます）。
+
+   img: 卓のビジュアル用イラスト（assets/ 配下、HTMLファイルと同じ階層に
+   置く想定）。デフォルト12卓ぶんのみ用意。未設定のテーマは自動的に
+   従来のドット絵アイコン＋グラデーション背景にフォールバックします。
    ========================================================================= */
 const GAME_THEMES = [
   { name:"スーパーマリオ", nameEn:"Super Mario", kana:"スーパーマリオ組",
     descJa:"前向きで頼れる、みんなを引っ張る冒険家タイプ。", descEn:"Bold, upbeat, and always ready to lead the adventure.",
-    vec:{A:0.6,B:-0.2,C:0.7}, icon:"star" },
+    vec:{A:0.6,B:-0.2,C:0.7}, icon:"star", img:"assets/mario.webp" },
   { name:"テトリス", nameEn:"Tetris", kana:"テトリス組",
     descJa:"冷静沈着、パズルを組み立てるように物事を考える知将タイプ。", descEn:"Calm and methodical — the strategist who plans every move.",
-    vec:{A:-0.4,B:0.9,C:-0.2}, icon:"block" },
+    vec:{A:-0.4,B:0.9,C:-0.2}, icon:"block", img:"assets/tetris.webp" },
   { name:"ファイナルファンタジー", nameEn:"Final Fantasy", kana:"ファイナルファンタジー組",
     descJa:"じっくり戦略を練り、仲間を導く知将リーダータイプ。", descEn:"A thoughtful strategist who plans carefully and leads the party.",
-    vec:{A:-0.3,B:0.7,C:0.3}, icon:"sword" },
+    vec:{A:-0.3,B:0.7,C:0.3}, icon:"sword", img:"assets/ff.webp" },
   { name:"ストリートファイター", nameEn:"Street Fighter", kana:"ストリートファイター組",
     descJa:"直感と勢いで押し切る、闘志あふれる武闘派タイプ。", descEn:"Bold instincts and fighting spirit — leads with momentum.",
-    vec:{A:0.9,B:-0.4,C:0.6}, icon:"fist" },
+    vec:{A:0.9,B:-0.4,C:0.6}, icon:"fist", img:"assets/streetfighter.webp" },
   { name:"ソニック・ザ・ヘッジホッグ", nameEn:"Sonic the Hedgehog", kana:"ソニック組",
     descJa:"スピード重視、勢いのまま楽しく突き進むタイプ。", descEn:"Fast, fun, and instinctive — full speed ahead.",
-    vec:{A:0.8,B:-0.3,C:-0.5}, icon:"lightning" },
+    vec:{A:0.8,B:-0.3,C:-0.5}, icon:"lightning", img:"assets/sonic.webp" },
   { name:"マインクラフト", nameEn:"Minecraft", kana:"マインクラフト組",
     descJa:"コツコツ積み上げる、創造力豊かな建築家タイプ。", descEn:"Patient and creative — builds something great, one block at a time.",
-    vec:{A:-0.2,B:0.5,C:0.4}, icon:"pickaxe" },
+    vec:{A:-0.2,B:0.5,C:0.4}, icon:"pickaxe", img:"assets/minecraft.webp" },
   { name:"ドラゴンクエスト", nameEn:"Dragon Quest", kana:"ドラゴンクエスト組",
     descJa:"仲間と着実に冒険を進める、堅実な戦略家タイプ。", descEn:"Steady and methodical — advances the party one careful step at a time.",
-    vec:{A:-0.4,B:0.6,C:-0.1}, icon:"shield" },
+    vec:{A:-0.4,B:0.6,C:-0.1}, icon:"shield", img:"assets/dragonquest.webp" },
   { name:"パックマン", nameEn:"Pac-Man", kana:"パックマン組",
     descJa:"コツコツ堅実、周りと歩調を合わせるタイプ。", descEn:"Steady and careful, gathering points one at a time.",
-    vec:{A:-0.5,B:0.4,C:-0.3}, icon:"ghost" },
+    vec:{A:-0.5,B:0.4,C:-0.3}, icon:"ghost", img:"assets/pacman.webp" },
   { name:"ポケモン", nameEn:"Pokémon", kana:"ポケモン組",
     descJa:"相性を見極めてじっくり戦略を練る、コレクター＆知将タイプ。", descEn:"A strategic collector who studies the matchups before making a move.",
-    vec:{A:0.1,B:0.6,C:0.2}, icon:"gem" },
+    vec:{A:0.1,B:0.6,C:0.2}, icon:"gem", img:"assets/pokemon.webp" },
   { name:"ドンキーコング", nameEn:"Donkey Kong", kana:"ドンキーコング組",
     descJa:"パワフルで頼りがいのある、力強いタイプ。", descEn:"Powerful and instinctive, with natural leadership muscle.",
-    vec:{A:0.6,B:-0.6,C:0.3}, icon:"barrel" },
+    vec:{A:0.6,B:-0.6,C:0.3}, icon:"barrel", img:"assets/donkeykong.webp" },
   { name:"スペースインベーダー", nameEn:"Space Invaders", kana:"スペースインベーダー組",
     descJa:"守りを固め、冷静に状況を見極める司令官タイプ。", descEn:"Careful and logical — commands the defense with a cool head.",
-    vec:{A:-0.6,B:0.6,C:0.3}, icon:"ufo" },
+    vec:{A:-0.6,B:0.6,C:0.3}, icon:"ufo", img:"assets/spaceinvaders.webp" },
   { name:"鉄拳", nameEn:"Tekken", kana:"鉄拳組",
     descJa:"一撃必殺、直感を信じて突き進むタイプ。", descEn:"Bold and instinctive, trusting the gut over the plan.",
-    vec:{A:0.7,B:-0.5,C:-0.1}, icon:"fist" },
+    vec:{A:0.7,B:-0.5,C:-0.1}, icon:"fist", img:"assets/tekken.webp" },
   { name:"モータルコンバット", nameEn:"Mortal Kombat", kana:"モータルコンバット組",
     descJa:"技を読み、確実に決めにいく戦略派タイプ。", descEn:"Bold but calculated — studies the moves before finishing strong.",
     vec:{A:0.8,B:0.3,C:0.5}, icon:"fist" },
@@ -477,7 +518,26 @@ function themeIconBadge(theme, sizePx){
 }
 
 /* =========================================================================
+   卓ごとのイラスト背景（表紙・座席ボード等で共通利用）
+   theme.img が無いテーマ（デフォルト12卓以外）は、従来どおり
+   CSSのグラデーション＋ドット絵アイコンに自動フォールバックします。
+   ========================================================================= */
+function themeBgStyle(theme, darken){
+  if(!theme || !theme.img) return "";
+  const d = darken || "180deg, rgba(13,36,54,.18) 0%, rgba(13,36,54,.5) 45%, rgba(13,36,54,.94) 100%";
+  return `background-image:linear-gradient(${d}), url('${theme.img}'); background-size:cover; background-position:center;`;
+}
+function themeHeroImg(theme, cls){
+  if(!theme || !theme.img) return "";
+  return `<img class="${cls||'reveal-img'}" src="${theme.img}" alt="${esc(L(theme.name,theme.nameEn))}" loading="lazy">`;
+}
+
+/* =========================================================================
    浮世絵風オリジナルイラスト（雷門・屋形船・桜）
+   ※ HERO_ASAKUSA_SVG / HERO_YAKATABUNE_SVG は、表紙イラスト（assets/cover-bg.webp）
+   導入に伴い現在は未使用です。assets 画像が読み込めない環境向けの手動フォール
+   バックとして残してあります（使う場合は該当箇所の <img class="hero-cover" ...>
+   をこれらの定数呼び出しに戻してください）。
    実在する浮世絵作品の複製ではなく、その画風にインスパイアされた
    完全オリジナルの装飾イラストです。
    ========================================================================= */
@@ -985,7 +1045,7 @@ async function renderJoin(){
         <a class="small-link" href="#/board">${T('boardLink')}</a>
       </div>
     </div>
-    ${HERO_ASAKUSA_SVG}
+    <img class="hero-cover" src="assets/cover-bg.webp" alt="${esc(T('title'))}">
     <h1 class="disp" style="font-size:30px; margin:6px 0 4px;">${T('title')}</h1>
     <p class="muted">${T('joinIntro')}</p>
     <div class="card">
@@ -1128,8 +1188,9 @@ async function renderResult(){
     <div class="eyebrow">${T('resultEyebrow')}</div>
     <h1 class="disp" style="font-size:26px; margin:6px 0 2px;">${esc(p.name)}${T('tableDecided')}</h1>
     <p class="muted">${T('tableDecidedSub')}</p>
+    ${themeHeroImg(tinfo, "reveal-img")}
     <div class="card" style="text-align:center;">
-      ${themeIconBadge(tinfo, 48)}
+      ${tinfo.img ? `` : themeIconBadge(tinfo, 48)}
       <div class="pill" style="font-size:14px;">${esc(tinfo.kana)} / ${esc(tinfo.nameEn)}</div>
       <h2 class="disp" style="font-size:28px; margin:10px 0 4px; color:var(--gold-bright);">${esc(L(tinfo.name, tinfo.nameEn))}</h2>
       <p class="muted" style="margin-bottom:14px;">${esc(L(tinfo.descJa, tinfo.descEn))}</p>
@@ -1200,7 +1261,7 @@ async function renderBoard(){
       const justJoined = newlyJoined.some(([id,p])=>p.tableIndex===i);
       const justChanged = changedMeisterTables.some(c=>c.i===i);
       return `
-        <div class="lantern ${justJoined?'lantern-pulse':''} ${justChanged?'lantern-flash':''}">
+        <div class="lantern ${t.img?'has-img':''} ${justJoined?'lantern-pulse':''} ${justChanged?'lantern-flash':''}" style="${themeBgStyle(t)}">
           <div class="count">${members.length}${T('peopleCount')}</div>
           ${themeIconBadge(t, 26)}
           <h3>${esc(L(t.name,t.nameEn))}</h3>
@@ -1354,7 +1415,7 @@ async function renderRules(){
       <div class="eyebrow">${T('rulesEyebrow')}</div>
       <a class="small-link" href="#/board">${T('boardLink')}</a>
     </div>
-    ${HERO_YAKATABUNE_SVG}
+    <img class="hero-cover" src="assets/cover-bg.webp" alt="${esc(T('rulesTitle'))}">
     <div class="hero-title">
       <span class="retro-badge"><span class="coin-blink">🪙</span> PLAYER VS PLAYER</span>
       <h1 class="disp" style="margin-top:10px;">${T('rulesTitle')}</h1>
@@ -1419,7 +1480,7 @@ async function renderRanking(){
         <div class="card pixel-frame" style="text-align:center; margin:16px 4px 20px;">
           <div class="sakura-corner">${sakuraBranchSVG(90)}</div>
           <p class="muted" style="font-size:13px;"><span class="pixel-sparkle">✨</span> ${T('rankingWinnerLabel')} <span class="pixel-sparkle">✨</span></p>
-          ${themeIconBadge(rows[0].t, 44)}
+          ${rows[0].t.img ? `<img class="winner-img" src="${rows[0].t.img}" alt="${esc(L(rows[0].t.name,rows[0].t.nameEn))}">` : themeIconBadge(rows[0].t, 44)}
           <h2 class="disp" style="font-size:30px; color:var(--gold-bright); margin:6px 0;">${esc(L(rows[0].t.name, rows[0].t.nameEn))}</h2>
           <p style="font-weight:800; font-size:20px;">${T('rankingCongrats')}</p>
         </div>
@@ -1428,7 +1489,7 @@ async function renderRanking(){
         ${rows.map((r,idx)=>`
           <div class="rank-row ${idx===0?'first':''}" style="animation-delay:${idx*0.12}s;">
             <div class="rank-medal">${medals[idx] || (idx+1)}</div>
-            ${pixelIconSVG(r.t.icon, 22)}
+            ${r.t.img ? `<img class="rank-thumb" src="${r.t.img}" alt="">` : pixelIconSVG(r.t.icon, 22)}
             <div class="rank-name">${esc(L(r.t.name,r.t.nameEn))}</div>
             <div class="rank-score">${r.score}${T('ptsLabel')}</div>
           </div>
@@ -1566,7 +1627,7 @@ async function renderAdmin(){
     el.innerHTML = themes.map((t,i)=>{
       const td = tables[i] || {};
       return `
-        <div class="lantern" style="min-height:auto;">
+        <div class="lantern ${t.img?'has-img':''}" style="min-height:auto; ${themeBgStyle(t)}">
           ${themeIconBadge(t, 22)}
           <h3 style="font-size:16px;">${esc(L(t.name,t.nameEn))}</h3>
           <div class="concept">${T('scoreLabel')}${td.score||0}${T('ptsLabel')}</div>
